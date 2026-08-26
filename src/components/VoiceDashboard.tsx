@@ -183,104 +183,142 @@ export function VoiceDashboard({
           </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* 100% Stacked Bar Chart Kategori Layanan */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+        {/* Komposisi Kategori Layanan Card */}
         <div className="lg:col-span-5 bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-1.5">
-            <h3 className="font-bold text-slate-800 flex items-center gap-1.5 text-xs sm:text-sm">
-              <Database size={16} className="text-indigo-600" /> Komposisi Kategori Layanan
-            </h3>
-            <span className="text-[10px] font-semibold px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-full">
-              100% Stacked Bar
-            </span>
+          <div>
+            {/* Header */}
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h3 className="font-bold text-slate-800 flex items-center gap-1.5 text-xs sm:text-sm">
+                  <Database size={16} className="text-blue-600" />
+                  <span>Komposisi Kategori Layanan</span>
+                </h3>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Distribusi pemanfaatan dari 3 kategori utama (Jan – Jul 2026)
+                </p>
+              </div>
+              <span className="text-[10px] font-bold px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full border border-blue-100/80 shrink-0">
+                Total: {new Intl.NumberFormat('id-ID').format(categoryStackedData.total || 976220)}
+              </span>
+            </div>
+
+            {/* 100% Horizontal Proportion Bar */}
+            <div className="my-3">
+              <div className="flex justify-between items-center text-[11px] text-slate-500 font-medium mb-1.5">
+                <span>Distribusi Proporsional</span>
+                <span className="text-slate-700 font-semibold">100% Akumulasi</span>
+              </div>
+
+              <div className="w-full h-8 bg-slate-100 rounded-xl overflow-hidden flex p-1 border border-slate-200/80 gap-1 shadow-inner">
+                {/* Informasi Segment */}
+                <div 
+                  style={{ width: `${Math.max(categoryStackedData.infoPct, 5)}%` }}
+                  className="bg-blue-600 rounded-lg flex items-center justify-center text-white text-[11px] font-bold shadow-2xs transition-all hover:brightness-110 cursor-pointer relative group"
+                  title={`Informasi: ${categoryStackedData.infoPct}% (${new Intl.NumberFormat('id-ID').format(categoryStackedData.info)})`}
+                >
+                  <span className="truncate px-1.5">{categoryStackedData.infoPct}%</span>
+                </div>
+
+                {/* Permintaan Segment */}
+                <div 
+                  style={{ width: `${Math.max(categoryStackedData.reqPct, 4)}%` }}
+                  className="bg-emerald-600 rounded-lg flex items-center justify-center text-white text-[11px] font-bold shadow-2xs transition-all hover:brightness-110 cursor-pointer relative group"
+                  title={`Permintaan: ${categoryStackedData.reqPct}% (${new Intl.NumberFormat('id-ID').format(categoryStackedData.req)})`}
+                >
+                  <span className="truncate px-1">{categoryStackedData.reqPct}%</span>
+                </div>
+
+                {/* Pengaduan Segment */}
+                <div 
+                  style={{ width: `${Math.max(categoryStackedData.compPct, 3)}%` }}
+                  className="bg-amber-500 rounded-lg flex items-center justify-center text-white text-[10px] font-bold shadow-2xs transition-all hover:brightness-110 cursor-pointer relative group"
+                  title={`Pengaduan: ${categoryStackedData.compPct}% (${new Intl.NumberFormat('id-ID').format(categoryStackedData.comp)})`}
+                >
+                  <span className="truncate px-0.5">{categoryStackedData.compPct}%</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Structured Proportional Category Cards */}
+            <div className="space-y-2 mt-3.5">
+              {/* Informasi */}
+              <div className="p-2.5 rounded-xl border border-blue-100 bg-blue-50/40 hover:bg-blue-50/70 transition-colors">
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-blue-600 ring-2 ring-blue-200"></span>
+                    <span className="text-xs font-bold text-slate-800">Informasi</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-slate-900">
+                      {new Intl.NumberFormat('id-ID').format(categoryStackedData.info)}
+                    </span>
+                    <span className="text-[11px] font-bold text-blue-700 bg-blue-100/90 px-1.5 py-0.5 rounded">
+                      {categoryStackedData.infoPct}%
+                    </span>
+                  </div>
+                </div>
+                <div className="w-full bg-blue-100/60 h-1.5 rounded-full overflow-hidden">
+                  <div 
+                    className="bg-blue-600 h-full rounded-full" 
+                    style={{ width: `${categoryStackedData.infoPct}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Permintaan */}
+              <div className="p-2.5 rounded-xl border border-emerald-100 bg-emerald-50/40 hover:bg-emerald-50/70 transition-colors">
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 ring-2 ring-emerald-200"></span>
+                    <span className="text-xs font-bold text-slate-800">Permintaan</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-slate-900">
+                      {new Intl.NumberFormat('id-ID').format(categoryStackedData.req)}
+                    </span>
+                    <span className="text-[11px] font-bold text-emerald-700 bg-emerald-100/90 px-1.5 py-0.5 rounded">
+                      {categoryStackedData.reqPct}%
+                    </span>
+                  </div>
+                </div>
+                <div className="w-full bg-emerald-100/60 h-1.5 rounded-full overflow-hidden">
+                  <div 
+                    className="bg-emerald-600 h-full rounded-full" 
+                    style={{ width: `${categoryStackedData.reqPct}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Pengaduan */}
+              <div className="p-2.5 rounded-xl border border-amber-100 bg-amber-50/40 hover:bg-amber-50/70 transition-colors">
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500 ring-2 ring-amber-200"></span>
+                    <span className="text-xs font-bold text-slate-800">Pengaduan</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-slate-900">
+                      {new Intl.NumberFormat('id-ID').format(categoryStackedData.comp)}
+                    </span>
+                    <span className="text-[11px] font-bold text-amber-700 bg-amber-100/90 px-1.5 py-0.5 rounded">
+                      {categoryStackedData.compPct}%
+                    </span>
+                  </div>
+                </div>
+                <div className="w-full bg-amber-100/60 h-1.5 rounded-full overflow-hidden">
+                  <div 
+                    className="bg-amber-500 h-full rounded-full" 
+                    style={{ width: `${categoryStackedData.compPct}%` }}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
-          
-          <div className="w-full h-16 my-1.5">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                layout="vertical"
-                data={categoryStackedData.chartData}
-                margin={{ top: 2, right: 4, left: 4, bottom: 2 }}
-              >
-                <XAxis
-                  type="number"
-                  domain={[0, 100]}
-                  hide
-                />
-                <YAxis
-                  type="category"
-                  dataKey="name"
-                  hide
-                />
-                <Tooltip
-                  formatter={(value: number, name: string) => {
-                    const count = name === 'Informasi' ? categoryStackedData.info : name === 'Permintaan' ? categoryStackedData.req : categoryStackedData.comp;
-                    return [`${value}% (${new Intl.NumberFormat('id-ID').format(count)})`, name];
-                  }}
-                  contentStyle={{
-                    borderRadius: '8px',
-                    border: '1px solid #e2e8f0',
-                    fontSize: '11px',
-                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-                  }}
-                  labelStyle={{ color: '#0f172a', fontWeight: 600, marginBottom: '2px' }}
-                />
-                <Bar dataKey="Informasi" name="Informasi" stackId="kategori" fill="#3b82f6" radius={[6, 0, 0, 6]} barSize={28}>
-                  <LabelList
-                    dataKey="Informasi"
-                    position="center"
-                    formatter={(val: number) => val > 7 ? `${val}%` : ''}
-                    style={{ fontSize: '11px', fontWeight: 700, fill: '#ffffff' }}
-                  />
-                </Bar>
-                <Bar dataKey="Permintaan" name="Permintaan" stackId="kategori" fill="#10b981" barSize={28}>
-                  <LabelList
-                    dataKey="Permintaan"
-                    position="center"
-                    formatter={(val: number) => val > 7 ? `${val}%` : ''}
-                    style={{ fontSize: '11px', fontWeight: 700, fill: '#ffffff' }}
-                  />
-                </Bar>
-                <Bar dataKey="Pengaduan" name="Pengaduan" stackId="kategori" fill="#f59e0b" radius={[0, 6, 6, 0]} barSize={28}>
-                  <LabelList
-                    dataKey="Pengaduan"
-                    position="center"
-                    formatter={(val: number) => val > 7 ? `${val}%` : ''}
-                    style={{ fontSize: '11px', fontWeight: 700, fill: '#ffffff' }}
-                  />
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
 
-          {/* Legend & Summary Cards */}
-          <div className="grid grid-cols-3 gap-1.5 pt-2 border-t border-slate-100">
-            <div className="bg-blue-50/70 py-1 px-1.5 rounded-lg text-center">
-              <div className="flex items-center justify-center gap-1 mb-0.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-                <span className="text-[10px] font-semibold text-slate-700">Informasi</span>
-              </div>
-              <p className="text-xs font-bold text-blue-700 leading-tight">{categoryStackedData.infoPct}%</p>
-              <p className="text-[9px] text-slate-500 mt-0.5">{new Intl.NumberFormat('id-ID').format(categoryStackedData.info)}</p>
-            </div>
-
-            <div className="bg-emerald-50/70 py-1 px-1.5 rounded-lg text-center">
-              <div className="flex items-center justify-center gap-1 mb-0.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                <span className="text-[10px] font-semibold text-slate-700">Permintaan</span>
-              </div>
-              <p className="text-xs font-bold text-emerald-700 leading-tight">{categoryStackedData.reqPct}%</p>
-              <p className="text-[9px] text-slate-500 mt-0.5">{new Intl.NumberFormat('id-ID').format(categoryStackedData.req)}</p>
-            </div>
-
-            <div className="bg-amber-50/70 py-1 px-1.5 rounded-lg text-center">
-              <div className="flex items-center justify-center gap-1 mb-0.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                <span className="text-[10px] font-semibold text-slate-700">Pengaduan</span>
-              </div>
-              <p className="text-xs font-bold text-amber-700 leading-tight">{categoryStackedData.compPct}%</p>
-              <p className="text-[9px] text-slate-500 mt-0.5">{new Intl.NumberFormat('id-ID').format(categoryStackedData.comp)}</p>
-            </div>
+          <div className="pt-3 border-t border-slate-100 text-[11px] text-slate-500 flex items-center justify-between">
+            <span>Dominasi utama: <strong className="text-blue-700 font-semibold">Kategori Informasi</strong></span>
+            <span className="text-slate-400">87,2% dari total</span>
           </div>
         </div>
 
