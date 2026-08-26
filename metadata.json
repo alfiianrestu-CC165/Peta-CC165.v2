@@ -1,0 +1,6 @@
+{
+  "name": "PETA Care Center 165",
+  "description": "PETA (Pemanfaatan Data) Care Center 165 - Real-time analytics and reporting dashboard synced with Google Sheets",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
