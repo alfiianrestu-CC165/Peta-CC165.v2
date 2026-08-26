@@ -1,10 +1,60 @@
 import Papa from 'papaparse';
-import { DataRow, CategoryBreakdownData, RegionalData, BranchOfficeData, RegionalSummaryItem } from '../types';
+import { 
+  DataRow, 
+  CategoryBreakdownData, 
+  RegionalData, 
+  BranchOfficeData, 
+  RegionalSummaryItem,
+  ParticipantSegmentData,
+  SegmentItem,
+  MonthlySegmentSummary,
+  RegionalSegmentItem
+} from '../types';
 
 export const SHEET_ID = '1MjFAlH-fl2Y5acLWgNqQcX6E7nYfEol2gi6bHHfvH0U';
 const CSV_URL_MAIN = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
 const CSV_URL_CATEGORY = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=801320162`;
 export const CSV_URL_REGIONAL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=1804505187`;
+export const CSV_URL_SEGMENT = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=695192154`;
+
+// Metadata definitions for 7 segments
+export const SEGMENT_METADATA: Record<string, { fullName: string; description: string; color: string }> = {
+  'PBPU': {
+    fullName: 'Pekerja Bukan Penerima Upah (Mandiri)',
+    description: 'Peserta yang membayar iuran secara mandiri setiap bulan.',
+    color: '#2563eb' // Blue
+  },
+  'PPU': {
+    fullName: 'Pekerja Penerima Upah (Swasta/BUMN)',
+    description: 'Pekerja di sektor swasta, BUMN, dan BUMD yang iurannya dibayarkan oleh pemberi kerja & pekerja.',
+    color: '#0d9488' // Teal
+  },
+  'PBI APBN': {
+    fullName: 'Penerima Bantuan Iuran (PBI) APBN',
+    description: 'Fakir miskin dan orang tidak mampu yang iurannya dibiayai oleh Pemerintah Pusat melalui APBN.',
+    color: '#16a34a' // Green
+  },
+  'PBI APBD': {
+    fullName: 'Penerima Bantuan Iuran (PBI) APBD',
+    description: 'Penduduk yang didaftarkan dan diintegrasikan oleh Pemerintah Daerah melalui APBD.',
+    color: '#ca8a04' // Amber/Yellow
+  },
+  'PPU PN': {
+    fullName: 'PPU Penyelenggara Negara (ASN / TNI / POLRI)',
+    description: 'Pegawai Negeri Sipil, Anggota TNI, Anggota Polri, Pejabat Negara, dan Pegawai Pemerintah non PNS.',
+    color: '#7c3aed' // Purple
+  },
+  'BP': {
+    fullName: 'Bukan Pekerja (Investor / Pensiunan / Veteran)',
+    description: 'Penerima pensiun, veteran, perintis kemerdekaan, janda/duda/yatim dari veteran, investor, dan bukan pekerja lainnya.',
+    color: '#ea580c' // Orange
+  },
+  'Belum Terdaftar': {
+    fullName: 'Calon Peserta / Belum Terdaftar',
+    description: 'Masyarakat umum yang menghubungi CC 165 untuk pendaftaran baru atau konsultasi kepesertaan.',
+    color: '#64748b' // Slate
+  }
+};
 
 // Fallback data for category breakdown if network error occurs
 const DEFAULT_CATEGORY_DATA: CategoryBreakdownData = {
@@ -291,6 +341,234 @@ export async function fetchRegionalData(): Promise<RegionalData> {
   } catch (error) {
     console.warn("Could not fetch regional data from Google Sheets:", error);
     return emptyResult;
+  }
+}
+
+export const ROMAN_NUMERALS: Record<string, number> = {
+  'I': 1,
+  'II': 2,
+  'III': 3,
+  'IV': 4,
+  'V': 5,
+  'VI': 6,
+  'VII': 7,
+  'VIII': 8,
+  'IX': 9,
+  'X': 10,
+  'XI': 11,
+  'XII': 12,
+};
+
+export function getKedeputianWilayahIndex(name: string): number {
+  if (!name) return 999;
+  const match = name.toUpperCase().match(/\b(XII|XI|X|IX|VIII|VII|VI|V|IV|III|II|I)\b/);
+  if (match && ROMAN_NUMERALS[match[1]]) {
+    return ROMAN_NUMERALS[match[1]];
+  }
+  return 999;
+}
+
+// Fetch Participant Segment Dataset (Data Pemanfaatan Per Segmen - GID: 695192154)
+export async function fetchParticipantSegmentData(): Promise<ParticipantSegmentData> {
+  const segmentKeys = ['PBI APBN', 'PBI APBD', 'PBPU', 'PPU PN', 'PPU', 'BP', 'Belum Terdaftar'];
+  const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli'];
+
+  try {
+    const res = await fetch(CSV_URL_SEGMENT);
+    if (!res.ok) throw new Error("Gagal mengambil data segmen peserta dari Google Sheets");
+    
+    const csvText = await res.text();
+    const parsed = Papa.parse<string[]>(csvText, { skipEmptyLines: true });
+    
+    const segmentMonthlyTotals: Record<string, { januari: number; februari: number; maret: number; april: number; mei: number; juni: number; juli: number }> = {};
+    segmentKeys.forEach(k => {
+      segmentMonthlyTotals[k] = { januari: 0, februari: 0, maret: 0, april: 0, mei: 0, juni: 0, juli: 0 };
+    });
+
+    const monthlySummaries: MonthlySegmentSummary[] = months.map(m => ({
+      bulan: m,
+      'PBI APBN': 0,
+      'PBI APBD': 0,
+      'PBPU': 0,
+      'PPU PN': 0,
+      'PPU': 0,
+      'BP': 0,
+      'Belum Terdaftar': 0,
+      total: 0
+    }));
+
+    const regionalSegments: RegionalSegmentItem[] = [];
+    let grandTotal = 0;
+
+    // Find TOTAL row or calculate from Regional rows
+    for (const row of parsed.data) {
+      if (!row || row.length < 20) continue;
+      const col0 = (row[0] || '').trim();
+
+      // Regional rows (Only Kedeputian Wilayah I s.d. XII, ignore generic header "KEDEPUTIAN WILAYAH")
+      const romanIndex = getKedeputianWilayahIndex(col0);
+      if (col0.startsWith('KEDEPUTIAN WILAYAH') && !col0.includes('JANUARI') && romanIndex >= 1 && romanIndex <= 12) {
+        const romanId = col0.replace(/KEDEPUTIAN WILAYAH/i, '').trim();
+        const regItem: RegionalSegmentItem = {
+          kedeputianWilayah: col0,
+          romanId: romanId || `Wilayah ${romanIndex}`,
+          'PBI APBN': 0,
+          'PBI APBD': 0,
+          'PBPU': 0,
+          'PPU PN': 0,
+          'PPU': 0,
+          'BP': 0,
+          'Belum Terdaftar': 0,
+          total: 0,
+          percentage: 0
+        };
+
+        for (let m = 0; m < 7; m++) {
+          const startCol = 1 + m * 8;
+          for (let s = 0; s < 7; s++) {
+            const segName = segmentKeys[s];
+            const val = parseInt((row[startCol + s] || '0').replace(/,/g, ''), 10) || 0;
+            (regItem as any)[segName] += val;
+            regItem.total += val;
+          }
+        }
+        regionalSegments.push(regItem);
+      }
+
+      // Total row
+      if (col0 === 'TOTAL') {
+        for (let m = 0; m < 7; m++) {
+          const startCol = 1 + m * 8;
+          const monthKey = months[m].toLowerCase() as 'januari' | 'februari' | 'maret' | 'april' | 'mei' | 'juni' | 'juli';
+          let mTotal = 0;
+          
+          for (let s = 0; s < 7; s++) {
+            const segName = segmentKeys[s];
+            const val = parseInt((row[startCol + s] || '0').replace(/,/g, ''), 10) || 0;
+            segmentMonthlyTotals[segName][monthKey] = val;
+            (monthlySummaries[m] as any)[segName] = val;
+            mTotal += val;
+          }
+          monthlySummaries[m].total = mTotal;
+          grandTotal += mTotal;
+        }
+      }
+    }
+
+    // If grandTotal not computed from TOTAL row, compute from regional
+    if (grandTotal === 0 && regionalSegments.length > 0) {
+      grandTotal = regionalSegments.reduce((sum, r) => sum + r.total, 0);
+    }
+
+    // Sort regional segments sequentially from Kedeputian Wilayah I to XII
+    regionalSegments.sort((a, b) => getKedeputianWilayahIndex(a.kedeputianWilayah) - getKedeputianWilayahIndex(b.kedeputianWilayah));
+
+    // Calculate regional percentages
+    regionalSegments.forEach(r => {
+      r.percentage = grandTotal > 0 ? (r.total / grandTotal) * 100 : 0;
+    });
+
+    // Build segments list
+    const segments: SegmentItem[] = segmentKeys.map(key => {
+      const meta = SEGMENT_METADATA[key] || {
+        fullName: key,
+        description: '',
+        color: '#3b82f6'
+      };
+      const monthly = segmentMonthlyTotals[key];
+      const total = monthly.januari + monthly.februari + monthly.maret + monthly.april + monthly.mei + monthly.juni + monthly.juli;
+      const percentage = grandTotal > 0 ? (total / grandTotal) * 100 : 0;
+
+      return {
+        segmentName: key,
+        fullName: meta.fullName,
+        description: meta.description,
+        color: meta.color,
+        total,
+        percentage,
+        monthly
+      };
+    }).sort((a, b) => b.total - a.total);
+
+    return {
+      segments,
+      monthlyData: monthlySummaries,
+      regionalSegments,
+      grandTotal
+    };
+  } catch (error) {
+    console.warn("Could not fetch participant segment data from Google Sheets:", error);
+    // Return standard fallback based on actual sheet data
+    return {
+      segments: [
+        {
+          segmentName: 'PBPU',
+          fullName: SEGMENT_METADATA['PBPU'].fullName,
+          description: SEGMENT_METADATA['PBPU'].description,
+          color: SEGMENT_METADATA['PBPU'].color,
+          total: 316929,
+          percentage: 36.52,
+          monthly: { januari: 58915, februari: 55600, maret: 40684, april: 42624, mei: 39005, juni: 40449, juli: 39652 }
+        },
+        {
+          segmentName: 'PPU',
+          fullName: SEGMENT_METADATA['PPU'].fullName,
+          description: SEGMENT_METADATA['PPU'].description,
+          color: SEGMENT_METADATA['PPU'].color,
+          total: 219153,
+          percentage: 25.25,
+          monthly: { januari: 40034, februari: 33644, maret: 28158, april: 30428, mei: 29379, juni: 30225, juli: 27285 }
+        },
+        {
+          segmentName: 'PBI APBN',
+          fullName: SEGMENT_METADATA['PBI APBN'].fullName,
+          description: SEGMENT_METADATA['PBI APBN'].description,
+          color: SEGMENT_METADATA['PBI APBN'].color,
+          total: 147854,
+          percentage: 17.04,
+          monthly: { januari: 22407, februari: 37876, maret: 17278, april: 19160, mei: 19078, juni: 17886, juli: 14169 }
+        },
+        {
+          segmentName: 'PBI APBD',
+          fullName: SEGMENT_METADATA['PBI APBD'].fullName,
+          description: SEGMENT_METADATA['PBI APBD'].description,
+          color: SEGMENT_METADATA['PBI APBD'].color,
+          total: 99161,
+          percentage: 11.43,
+          monthly: { januari: 20432, februari: 16524, maret: 11599, april: 13877, mei: 12988, juni: 11526, juli: 12215 }
+        },
+        {
+          segmentName: 'PPU PN',
+          fullName: SEGMENT_METADATA['PPU PN'].fullName,
+          description: SEGMENT_METADATA['PPU PN'].description,
+          color: SEGMENT_METADATA['PPU PN'].color,
+          total: 59294,
+          percentage: 6.83,
+          monthly: { januari: 13906, februari: 11048, maret: 6699, april: 7716, mei: 6938, juni: 6812, juli: 6175 }
+        },
+        {
+          segmentName: 'BP',
+          fullName: SEGMENT_METADATA['BP'].fullName,
+          description: SEGMENT_METADATA['BP'].description,
+          color: SEGMENT_METADATA['BP'].color,
+          total: 14834,
+          percentage: 1.71,
+          monthly: { januari: 2163, februari: 1748, maret: 1909, april: 2267, mei: 2177, juni: 2494, juli: 2076 }
+        },
+        {
+          segmentName: 'Belum Terdaftar',
+          fullName: SEGMENT_METADATA['Belum Terdaftar'].fullName,
+          description: SEGMENT_METADATA['Belum Terdaftar'].description,
+          color: SEGMENT_METADATA['Belum Terdaftar'].color,
+          total: 10607,
+          percentage: 1.22,
+          monthly: { januari: 2392, februari: 1985, maret: 1199, april: 1426, mei: 1470, juni: 716, juli: 1419 }
+        }
+      ],
+      monthlyData: [],
+      regionalSegments: [],
+      grandTotal: 867832
+    };
   }
 }
 

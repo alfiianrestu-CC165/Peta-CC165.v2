@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
-import { DataRow, CategoryBreakdownData, RegionalData } from '../types';
+import { 
+  DataRow, 
+  CategoryBreakdownData, 
+  RegionalData, 
+  ParticipantSegmentData 
+} from '../types';
 import { 
   Database, 
   PhoneCall, 
@@ -15,7 +20,8 @@ import {
   FileSpreadsheet,
   Globe2,
   BarChart3,
-  Layers
+  Layers,
+  Users
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -32,6 +38,7 @@ import {
 import { cn } from '../lib/utils';
 import { CategoryBreakdown } from './CategoryBreakdown';
 import { RegionalBreakdown } from './RegionalBreakdown';
+import { ParticipantSegmentBreakdown } from './ParticipantSegmentBreakdown';
 
 export interface LogItem {
   id: string;
@@ -63,6 +70,7 @@ export interface VoiceDashboardProps {
   logs: LogItem[];
   setLogs: React.Dispatch<React.SetStateAction<LogItem[]>>;
   regionalData: RegionalData;
+  segmentData: ParticipantSegmentData;
 }
 
 export function VoiceDashboard({
@@ -78,15 +86,16 @@ export function VoiceDashboard({
   logs,
   setLogs,
   regionalData,
+  segmentData,
 }: VoiceDashboardProps) {
   const [showLogs, setShowLogs] = useState(false);
-  const [voiceSubTab, setVoiceSubTab] = useState<'ringkasan' | 'kedeputian'>('ringkasan');
+  const [voiceSubTab, setVoiceSubTab] = useState<'ringkasan' | 'segmen' | 'kedeputian'>('ringkasan');
 
   return (
     <div className="space-y-4">
       {/* Sub-menu Tabs for Voice */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-2 rounded-xl border border-slate-200 shadow-2xs">
-        <div className="flex items-center p-1 bg-slate-100/90 rounded-lg border border-slate-200 w-fit">
+        <div className="flex flex-wrap items-center p-1 bg-slate-100/90 rounded-lg border border-slate-200 gap-1">
           <button
             onClick={() => setVoiceSubTab('ringkasan')}
             className={cn(
@@ -97,7 +106,23 @@ export function VoiceDashboard({
             )}
           >
             <BarChart3 size={14} className={voiceSubTab === 'ringkasan' ? "text-blue-600" : "text-slate-500"} />
-            <span>Ringkasan & Kategori Pemanfaatan</span>
+            <span>Ringkasan & Kategori</span>
+          </button>
+
+          <button
+            onClick={() => setVoiceSubTab('segmen')}
+            className={cn(
+              "flex items-center gap-2 px-3.5 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer",
+              voiceSubTab === 'segmen'
+                ? "bg-white text-blue-700 shadow-xs border border-slate-200/80"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
+            )}
+          >
+            <Users size={14} className={voiceSubTab === 'segmen' ? "text-blue-600" : "text-slate-500"} />
+            <span>Segmen Peserta</span>
+            <span className="text-[10px] bg-blue-100 text-blue-800 font-bold px-1.5 py-0.5 rounded-full">
+              7 Segmen
+            </span>
           </button>
 
           <button
@@ -110,7 +135,7 @@ export function VoiceDashboard({
             )}
           >
             <Globe2 size={14} className={voiceSubTab === 'kedeputian' ? "text-blue-600" : "text-slate-500"} />
-            <span>Pemanfaatan per Kedeputian Wilayah</span>
+            <span>Pemanfaatan per Wilayah</span>
             <span className="text-[10px] bg-blue-100 text-blue-800 font-bold px-1.5 py-0.5 rounded-full">
               12 Wilayah
             </span>
@@ -119,11 +144,13 @@ export function VoiceDashboard({
 
         <div className="hidden sm:flex items-center gap-2 pr-3 text-xs text-slate-500 font-medium">
           <Layers size={13} className="text-slate-400" />
-          <span>Sub Menu Layanan Voice CC 165</span>
+          <span>Layanan Voice CC 165</span>
         </div>
       </div>
 
-      {voiceSubTab === 'kedeputian' ? (
+      {voiceSubTab === 'segmen' ? (
+        <ParticipantSegmentBreakdown segmentData={segmentData} />
+      ) : voiceSubTab === 'kedeputian' ? (
         <RegionalBreakdown
           regionalData={regionalData}
           loading={loading}
@@ -138,46 +165,56 @@ export function VoiceDashboard({
                 <div>
                   <h3 className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Panggilan Masuk</h3>
                   <p className="text-2xl sm:text-3xl font-bold mt-1.5 text-slate-800 tracking-tight">
-                    {new Intl.NumberFormat('id-ID').format(totalMasuk)}
+                    {loading && data.length === 0 ? '...' : new Intl.NumberFormat('id-ID').format(totalMasuk)}
                   </p>
                 </div>
-                <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center">
+                <div className="p-2.5 rounded-lg bg-blue-50 text-blue-600">
+                  <PhoneCall size={20} />
+                </div>
+              </div>
+              <div className="mt-3 text-[11px] text-slate-500 flex items-center justify-between border-t border-slate-100 pt-2">
+                <span>Panggilan Masuk ke CC 165</span>
+                <span className="font-semibold text-blue-600">Jan – Jul 2026</span>
+              </div>
+            </div>
+
+            {/* % Dijawab Petugas */}
+            <div className="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">% Dijawab Petugas</h3>
+                  <p className="text-2xl sm:text-3xl font-bold mt-1.5 text-blue-600 tracking-tight">
+                    {loading && data.length === 0 ? '...' : persenDijawab}
+                  </p>
+                </div>
+                <div className="p-2.5 rounded-lg bg-emerald-50 text-emerald-600">
                   <PhoneIncoming size={20} />
                 </div>
               </div>
-              <div className="mt-3 flex items-center gap-1.5 text-[11px] text-slate-500">
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-                Akumulasi Panggilan Masuk
+              <div className="mt-3 text-[11px] text-slate-500 flex items-center justify-between border-t border-slate-100 pt-2">
+                <span>Rata-rata Waktu Layanan</span>
+                <span className="font-semibold text-slate-700 flex items-center gap-1">
+                  <Clock size={11} className="text-slate-400" /> 00:03:59
+                </span>
               </div>
             </div>
 
-            {/* Success Call Ratio */}
-            <div className="bg-blue-600 p-4 sm:p-5 rounded-xl shadow-sm text-white flex flex-col justify-between overflow-hidden relative">
-              <div className="relative z-10">
-                <h3 className="text-[11px] font-semibold uppercase opacity-85 tracking-wider">Success Call Ratio</h3>
-                <p className="text-2xl sm:text-3xl font-bold mt-1.5 tracking-tight">{persenDijawab}</p>
+            {/* % Tuntas pada CC 165 */}
+            <div className="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">% Tuntas pada CC 165</h3>
+                  <p className="text-2xl sm:text-3xl font-bold mt-1.5 text-emerald-600 tracking-tight">
+                    {loading && data.length === 0 ? '...' : rataTuntas}
+                  </p>
+                </div>
+                <div className="p-2.5 rounded-lg bg-teal-50 text-teal-600">
+                  <CheckCircle2 size={20} />
+                </div>
               </div>
-              <div className="relative z-10 flex items-center gap-1.5 text-[11px] opacity-90 mt-3">
-                <Activity size={13} />
-                Panggilan Dijawab Petugas
-              </div>
-              <div className="absolute -right-3 -bottom-3 opacity-15 scale-110 transform rotate-12 pointer-events-none">
-                <PhoneCall size={90} />
-              </div>
-            </div>
-
-            {/* Rata-rata % Tuntas */}
-            <div className="bg-emerald-600 p-4 sm:p-5 rounded-xl shadow-sm text-white flex flex-col justify-between overflow-hidden relative">
-              <div className="relative z-10">
-                <h3 className="text-[11px] font-semibold uppercase opacity-85 tracking-wider">Rata-rata % Tuntas</h3>
-                <p className="text-2xl sm:text-3xl font-bold mt-1.5 tracking-tight">{rataTuntas}</p>
-              </div>
-              <div className="relative z-10 flex items-center gap-1.5 text-[11px] opacity-90 mt-3">
-                <CheckCircle2 size={13} />
-                Tuntas pada Layanan CC 165
-              </div>
-              <div className="absolute -right-3 -bottom-3 opacity-15 scale-110 transform rotate-12 pointer-events-none">
-                <ShieldCheck size={90} />
+              <div className="mt-3 text-[11px] text-slate-500 flex items-center justify-between border-t border-slate-100 pt-2">
+                <span>Disposisi ke KC</span>
+                <span className="font-semibold text-slate-700">0,7% (6.671)</span>
               </div>
             </div>
           </div>
@@ -379,19 +416,56 @@ export function VoiceDashboard({
         categoryTotals={categoryStackedData}
       />
 
-      {/* Quick Regional Navigation Banner */}
+      {/* Quick Segment Participant Showcase Banner */}
       <div 
-        onClick={() => setVoiceSubTab('kedeputian')}
-        className="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white p-4 sm:p-5 rounded-xl shadow-sm border border-blue-800/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 cursor-pointer hover:shadow-md transition-all group"
+        onClick={() => setVoiceSubTab('segmen')}
+        className="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white p-4 sm:p-5 rounded-2xl shadow-xs border border-blue-800/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 cursor-pointer hover:shadow-md transition-all group"
       >
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-lg bg-blue-600/30 border border-blue-400/30 flex items-center justify-center text-blue-300 shrink-0 group-hover:scale-105 transition-transform">
-            <Globe2 size={22} />
+          <div className="w-11 h-11 rounded-xl bg-blue-600/30 border border-blue-400/30 flex items-center justify-center text-blue-300 shrink-0 group-hover:scale-105 transition-transform">
+            <Users size={22} />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[11px] uppercase font-bold tracking-wider text-blue-300 bg-blue-950/80 px-2 py-0.5 rounded border border-blue-700/40">
-                Sub Menu Voice
+                Data Baru
+              </span>
+              <span className="text-xs text-slate-300">Pemanfaatan Berdasarkan Segmen Peserta</span>
+            </div>
+            <h4 className="text-sm sm:text-base font-bold mt-1 text-white flex items-center gap-1.5">
+              Profil Pemanfaat: PBPU (36,5%), PPU (25,3%), PBI APBN (17,0%), dll.
+            </h4>
+            <p className="text-xs text-slate-300 mt-0.5">
+              Analisis mendalam 867.832 pemanfaatan berdasarkan 7 segmen kepesertaan di seluruh Indonesia.
+            </p>
+          </div>
+        </div>
+
+        <button 
+          type="button"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-all shadow-xs group-hover:translate-x-0.5 shrink-0"
+        >
+          <span>Eksplorasi Segmen Peserta</span>
+          <Users size={14} />
+        </button>
+      </div>
+
+      {/* Embedded Participant Segment Section inside Summary view as well */}
+      <ParticipantSegmentBreakdown segmentData={segmentData} />
+
+      {/* Quick Regional Navigation Banner */}
+      <div 
+        onClick={() => setVoiceSubTab('kedeputian')}
+        className="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white p-4 sm:p-5 rounded-2xl shadow-xs border border-slate-700/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 cursor-pointer hover:shadow-md transition-all group"
+      >
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-xl bg-indigo-600/30 border border-indigo-400/30 flex items-center justify-center text-indigo-300 shrink-0 group-hover:scale-105 transition-transform">
+            <Globe2 size={22} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] uppercase font-bold tracking-wider text-indigo-300 bg-indigo-950/80 px-2 py-0.5 rounded border border-indigo-700/40">
+                Peta & Sebaran
               </span>
               <span className="text-xs text-slate-300">12 Kedeputian Wilayah • 126 Kantor Cabang</span>
             </div>
@@ -406,9 +480,9 @@ export function VoiceDashboard({
 
         <button 
           type="button"
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-all shadow-sm group-hover:translate-x-0.5 shrink-0"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition-all shadow-xs group-hover:translate-x-0.5 shrink-0"
         >
-          <span>Buka Sub Menu Kedeputian Wilayah</span>
+          <span>Buka Peta & Kedeputian Wilayah</span>
           <Globe2 size={14} />
         </button>
       </div>
@@ -429,24 +503,22 @@ export function VoiceDashboard({
           {/* Quick toggle for system logs */}
           <button
             onClick={() => setShowLogs(!showLogs)}
-            className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500 hover:text-slate-800 transition-colors py-1 px-2.5 rounded-lg hover:bg-slate-100 border border-transparent hover:border-slate-200"
+            className="text-xs text-slate-500 hover:text-slate-800 flex items-center gap-1 cursor-pointer font-medium"
           >
-            <Clock size={13} />
-            <span>Log Sistem ({logs.length})</span>
-            {showLogs ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+            <span>{showLogs ? 'Tutup Log Sistem' : 'Lihat Log Sistem'}</span>
+            {showLogs ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           </button>
         </div>
 
-        {/* Structured Table */}
-        <div className="overflow-x-auto w-full">
-          <table className="w-full text-left border-collapse min-w-[900px] xl:min-w-full">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-slate-100/80 border-b border-slate-200 text-[10px] font-bold text-slate-600 uppercase tracking-tight">
-                <th className="px-2.5 py-2.5 text-center">Bulan</th>
-                <th className="px-2 py-2.5 text-center">Panggilan Masuk</th>
-                <th className="px-2 py-2.5 text-center">Panggilan Dijawab</th>
-                <th className="px-2 py-2.5 text-center">% Dijawab</th>
-                <th className="px-2 py-2.5 text-center">Avg Waktu</th>
+              <tr className="border-b border-slate-200 bg-slate-100/70 text-[10px] sm:text-xs font-semibold text-slate-700 uppercase">
+                <th className="px-2.5 py-2.5">Bulan</th>
+                <th className="px-2 py-2.5 text-right">Masuk</th>
+                <th className="px-2 py-2.5 text-right">Dijawab</th>
+                <th className="px-2 py-2.5 text-right">% Jawab</th>
+                <th className="px-2 py-2.5 text-center">Waktu</th>
                 <th className="px-2 py-2.5 text-center">&lt;20 Detik</th>
                 <th className="px-2 py-2.5 text-center">Informasi</th>
                 <th className="px-2 py-2.5 text-center">Permintaan</th>

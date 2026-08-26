@@ -81,3 +81,55 @@ export interface RegionalData {
     total: number;
   };
 }
+
+// Data Pemanfaatan Berdasarkan Segmen Peserta
+export interface SegmentItem {
+  segmentName: string;
+  fullName: string;
+  description: string;
+  color: string;
+  total: number;
+  percentage: number;
+  monthly: {
+    januari: number;
+    februari: number;
+    maret: number;
+    april: number;
+    mei: number;
+    juni: number;
+    juli: number;
+  };
+}
+
+export interface MonthlySegmentSummary {
+  bulan: string;
+  'PBI APBN': number;
+  'PBI APBD': number;
+  'PBPU': number;
+  'PPU PN': number;
+  'PPU': number;
+  'BP': number;
+  'Belum Terdaftar': number;
+  total: number;
+}
+
+export interface RegionalSegmentItem {
+  kedeputianWilayah: string;
+  romanId: string;
+  'PBI APBN': number;
+  'PBI APBD': number;
+  'PBPU': number;
+  'PPU PN': number;
+  'PPU': number;
+  'BP': number;
+  'Belum Terdaftar': number;
+  total: number;
+  percentage: number;
+}
+
+export interface ParticipantSegmentData {
+  segments: SegmentItem[];
+  monthlyData: MonthlySegmentSummary[];
+  regionalSegments: RegionalSegmentItem[];
+  grandTotal: number;
+}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { DataRow, CategoryBreakdownData, RegionalData } from '../types';
-import { fetchSheetData, fetchCategoryBreakdown, fetchRegionalData } from '../lib/sheets';
+import { DataRow, CategoryBreakdownData, RegionalData, ParticipantSegmentData } from '../types';
+import { fetchSheetData, fetchCategoryBreakdown, fetchRegionalData, fetchParticipantSegmentData } from '../lib/sheets';
 import { 
   RefreshCw, 
   Search, 
@@ -30,6 +30,12 @@ export function Dashboard() {
     branches: [],
     provinces: [],
     totals: { januari: 0, februari: 0, maret: 0, april: 0, mei: 0, juni: 0, juli: 0, total: 0 }
+  });
+  const [segmentData, setSegmentData] = useState<ParticipantSegmentData>({
+    segments: [],
+    monthlyData: [],
+    regionalSegments: [],
+    grandTotal: 0
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -67,18 +73,19 @@ export function Dashboard() {
     try {
       if (!isPolling) setLoading(true);
       setError(null);
-      const [rows, catBreakdown, regData] = await Promise.all([
+      const [rows, catBreakdown, regData, segData] = await Promise.all([
         fetchSheetData(),
         fetchCategoryBreakdown(),
-        fetchRegionalData()
+        fetchRegionalData(),
+        fetchParticipantSegmentData()
       ]);
       
-      const newDataString = JSON.stringify({ rows, catBreakdown, regData });
+      const newDataString = JSON.stringify({ rows, catBreakdown, regData, segData });
       
       // On first load, just set data, don't notify unless we had previous data
       if (previousDataRef.current === '') {
          previousDataRef.current = newDataString;
-         addLog('Data Loaded', `${rows.length} data bulanan, kategori, & 12 Kedeputian Wilayah dimuat dari Google Sheets.`, 'success');
+         addLog('Data Loaded', `${rows.length} data bulanan, 7 Segmen Peserta, & 12 Kedeputian Wilayah dimuat dari Google Sheets.`, 'success');
       } else if (isPolling && previousDataRef.current !== newDataString) {
         setNotification('Data terbaru telah disinkronkan dari Google Sheets.');
         addLog('Sync Successful', 'Perubahan terbaru dari Google Sheets diperbarui secara otomatis.', 'success');
@@ -89,6 +96,7 @@ export function Dashboard() {
       setData(rows);
       setCategoryData(catBreakdown);
       setRegionalData(regData);
+      setSegmentData(segData);
     } catch (err: any) {
       if (!isPolling) {
         setError(err.message || 'Gagal memuat data dari Google Sheets');
@@ -322,6 +330,7 @@ export function Dashboard() {
               logs={logs}
               setLogs={setLogs}
               regionalData={regionalData}
+              segmentData={segmentData}
             />
           ) : (
             <SocialMediaDashboard searchTerm={searchTerm} />
