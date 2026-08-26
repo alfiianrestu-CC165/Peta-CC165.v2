@@ -25,11 +25,11 @@ interface CategoryBreakdownProps {
 export function CategoryBreakdown({ categoryData, categoryTotals }: CategoryBreakdownProps) {
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'informasi' | 'permintaan' | 'pengaduan'>('all');
 
-  // Official Category Totals from Spreadsheet (GID 801320162)
-  const officialInfoTotal = categoryData.totals?.informasi || categoryTotals?.info || 851408;
+  // Official Category Totals from Spreadsheet (G9, H9, I9)
+  const officialInfoTotal = categoryData.totals?.informasi || categoryTotals?.info || 852095;
   const officialReqTotal = categoryData.totals?.permintaan || categoryTotals?.req || 116901;
-  const officialCompTotal = categoryData.totals?.pengaduan || categoryTotals?.comp || 7911;
-  const officialGrandTotal = categoryData.totals?.total || (officialInfoTotal + officialReqTotal + officialCompTotal);
+  const officialCompTotal = categoryData.totals?.pengaduan || categoryTotals?.comp || 7923;
+  const officialGrandTotal = categoryData.totals?.total || (officialInfoTotal + officialReqTotal + officialCompTotal) || 976919;
 
   const categories = [
     {

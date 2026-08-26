@@ -385,13 +385,13 @@ export function ParticipantSegmentBreakdown({ segmentData }: ParticipantSegmentB
         {/* TAB 2: MONTHLY TRENDS */}
         {activeTab === 'chart' && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <h4 className="text-sm font-bold text-slate-800">Tren Pemanfaatan Segmen per Bulan (Jan – Jul 2026)</h4>
-                <p className="text-xs text-slate-500">Pergerakan interaksi layanan 165 untuk setiap segmen peserta dari waktu ke waktu</p>
+                <p className="text-xs text-slate-500">Pergerakan interaksi layanan 165 untuk setiap segmen peserta dari waktu ke waktu (Stacked Bar)</p>
               </div>
-              <div className="text-xs text-slate-500">
-                Puncak Pemanfaatan: <strong className="text-blue-700">Januari (160.249) & Februari (158.425)</strong>
+              <div className="text-xs text-slate-600 bg-blue-50 px-3 py-1 rounded-lg border border-blue-200">
+                Puncak Pemanfaatan: <strong className="text-blue-700 font-bold">Januari (160.249) & Februari (158.425)</strong>
               </div>
             </div>
 
@@ -399,7 +399,7 @@ export function ParticipantSegmentBreakdown({ segmentData }: ParticipantSegmentB
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={monthlyChartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                  <XAxis dataKey="fullMonth" tick={{ fontSize: 12, fill: '#475569' }} />
+                  <XAxis dataKey="fullMonth" tick={{ fontSize: 12, fill: '#475569', fontWeight: 600 }} />
                   <YAxis 
                     tickFormatter={(val) => `${(val / 1000).toFixed(0)}k`} 
                     tick={{ fontSize: 11, fill: '#64748b' }} 
@@ -409,9 +409,9 @@ export function ParticipantSegmentBreakdown({ segmentData }: ParticipantSegmentB
                       new Intl.NumberFormat('id-ID').format(val),
                       name
                     ]}
-                    contentStyle={{ borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '12px' }}
+                    contentStyle={{ borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '12px', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
                   />
-                  <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }} />
+                  <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }} iconType="circle" iconSize={8} />
                   <Bar dataKey="PBPU" name="PBPU (Mandiri)" stackId="a" fill="#2563eb" />
                   <Bar dataKey="PPU" name="PPU (Swasta/BUMN)" stackId="a" fill="#0d9488" />
                   <Bar dataKey="PBI APBN" name="PBI APBN" stackId="a" fill="#16a34a" />
@@ -421,6 +421,63 @@ export function ParticipantSegmentBreakdown({ segmentData }: ParticipantSegmentB
                   <Bar dataKey="Belum Terdaftar" name="Belum Terdaftar" stackId="a" fill="#64748b" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
+            </div>
+
+            {/* Rincian Data per Bulan (Matriks Tabel & Kartu Bulanan) */}
+            <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-2xs">
+              <div className="px-4 py-3 border-b border-slate-200 bg-slate-50/70 flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-800">Tabel Data Pemanfaatan per Bulan</span>
+                <span className="text-[11px] text-slate-500 font-medium">Januari – Juli 2026</span>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs text-left">
+                  <thead>
+                    <tr className="border-b border-slate-200 bg-slate-100/80 font-bold text-slate-700">
+                      <th className="py-2.5 px-3">Bulan</th>
+                      <th className="py-2.5 px-2 text-right text-blue-700">PBPU</th>
+                      <th className="py-2.5 px-2 text-right text-teal-700">PPU</th>
+                      <th className="py-2.5 px-2 text-right text-emerald-700">PBI APBN</th>
+                      <th className="py-2.5 px-2 text-right text-yellow-700">PBI APBD</th>
+                      <th className="py-2.5 px-2 text-right text-purple-700">PPU PN</th>
+                      <th className="py-2.5 px-2 text-right text-orange-700">BP</th>
+                      <th className="py-2.5 px-2 text-right text-slate-600">Belum Terdaftar</th>
+                      <th className="py-2.5 px-3 text-right font-extrabold text-slate-900 bg-slate-100">Total Bulan</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {monthlyChartData.map((row) => (
+                      <tr key={row.fullMonth} className="hover:bg-slate-50/80 transition-colors">
+                        <td className="py-2.5 px-3 font-semibold text-slate-900">{row.fullMonth}</td>
+                        <td className="py-2.5 px-2 text-right text-slate-700">{new Intl.NumberFormat('id-ID').format(row.PBPU)}</td>
+                        <td className="py-2.5 px-2 text-right text-slate-700">{new Intl.NumberFormat('id-ID').format(row.PPU)}</td>
+                        <td className="py-2.5 px-2 text-right text-slate-700">{new Intl.NumberFormat('id-ID').format(row['PBI APBN'])}</td>
+                        <td className="py-2.5 px-2 text-right text-slate-700">{new Intl.NumberFormat('id-ID').format(row['PBI APBD'])}</td>
+                        <td className="py-2.5 px-2 text-right text-slate-700">{new Intl.NumberFormat('id-ID').format(row['PPU PN'])}</td>
+                        <td className="py-2.5 px-2 text-right text-slate-700">{new Intl.NumberFormat('id-ID').format(row.BP)}</td>
+                        <td className="py-2.5 px-2 text-right text-slate-700">{new Intl.NumberFormat('id-ID').format(row['Belum Terdaftar'])}</td>
+                        <td className="py-2.5 px-3 text-right font-extrabold text-blue-700 bg-blue-50/30">
+                          {new Intl.NumberFormat('id-ID').format(row.total)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr className="border-t-2 border-slate-300 bg-slate-100/90 font-extrabold text-slate-900">
+                      <td className="py-2.5 px-3">Total Akumulasi</td>
+                      <td className="py-2.5 px-2 text-right text-blue-700">{new Intl.NumberFormat('id-ID').format(segments.find(s => s.segmentName === 'PBPU')?.total || 0)}</td>
+                      <td className="py-2.5 px-2 text-right text-teal-700">{new Intl.NumberFormat('id-ID').format(segments.find(s => s.segmentName === 'PPU')?.total || 0)}</td>
+                      <td className="py-2.5 px-2 text-right text-emerald-700">{new Intl.NumberFormat('id-ID').format(segments.find(s => s.segmentName === 'PBI APBN')?.total || 0)}</td>
+                      <td className="py-2.5 px-2 text-right text-yellow-700">{new Intl.NumberFormat('id-ID').format(segments.find(s => s.segmentName === 'PBI APBD')?.total || 0)}</td>
+                      <td className="py-2.5 px-2 text-right text-purple-700">{new Intl.NumberFormat('id-ID').format(segments.find(s => s.segmentName === 'PPU PN')?.total || 0)}</td>
+                      <td className="py-2.5 px-2 text-right text-orange-700">{new Intl.NumberFormat('id-ID').format(segments.find(s => s.segmentName === 'BP')?.total || 0)}</td>
+                      <td className="py-2.5 px-2 text-right text-slate-700">{new Intl.NumberFormat('id-ID').format(segments.find(s => s.segmentName === 'Belum Terdaftar')?.total || 0)}</td>
+                      <td className="py-2.5 px-3 text-right text-blue-900 bg-blue-100/50">
+                        {new Intl.NumberFormat('id-ID').format(grandTotal)}
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
             </div>
           </div>
         )}

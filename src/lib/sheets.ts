@@ -59,17 +59,17 @@ export const SEGMENT_METADATA: Record<string, { fullName: string; description: s
 // Fallback data for category breakdown if network error occurs
 const DEFAULT_CATEGORY_DATA: CategoryBreakdownData = {
   informasi: [
-    { topik: 'Perbaikan data identitas peserta (NIK, nama, tanggal lahir, jenis kelamin dan alamat)', jumlah: 156556, persen: '18,39%', persenVal: 18.39 },
-    { topik: 'Prosedur Perubahan Segmen Kepesertaan', jumlah: 125926, persen: '14,79%', persenVal: 14.79 },
+    { topik: 'Perbaikan data identitas peserta (NIK, nama, tanggal lahir, jenis kelamin dan alamat)', jumlah: 156556, persen: '18,37%', persenVal: 18.37 },
+    { topik: 'Prosedur Perubahan Segmen Kepesertaan', jumlah: 125926, persen: '14,78%', persenVal: 14.78 },
     { topik: 'Cek Tagihan/Pembayaran', jumlah: 70187, persen: '8,24%', persenVal: 8.24 },
-    { topik: 'Status Kepesertaan', jumlah: 62972, persen: '7,40%', persenVal: 7.40 },
-    { topik: 'Tata Cara Pembayaran Iuran', jumlah: 62380, persen: '7,33%', persenVal: 7.33 }
+    { topik: 'Status Kepesertaan', jumlah: 62972, persen: '7,39%', persenVal: 7.39 },
+    { topik: 'Tata Cara Pembayaran Iuran', jumlah: 62380, persen: '7,32%', persenVal: 7.32 }
   ],
   pengaduan: [
-    { topik: 'Aplikasi Mobile JKN sulit diakses (registrasi)', jumlah: 2270, persen: '28,69%', persenVal: 28.69 },
-    { topik: 'Gangguan antrean melalui aplikasi mobile JKN', jumlah: 1052, persen: '13,30%', persenVal: 13.30 },
-    { topik: 'Data pembayaran iuran belum masuk FTP', jumlah: 822, persen: '10,39%', persenVal: 10.39 },
-    { topik: 'Non-aktif karena Iuran dengan status pembayaran lunas', jumlah: 691, persen: '8,73%', persenVal: 8.73 },
+    { topik: 'Aplikasi Mobile JKN sulit diakses (registrasi)', jumlah: 2270, persen: '28,65%', persenVal: 28.65 },
+    { topik: 'Gangguan antrean melalui aplikasi mobile JKN', jumlah: 1052, persen: '13,28%', persenVal: 13.28 },
+    { topik: 'Data pembayaran iuran belum masuk FTP', jumlah: 822, persen: '10,37%', persenVal: 10.37 },
+    { topik: 'Non-aktif karena Iuran dengan status pembayaran lunas', jumlah: 691, persen: '8,72%', persenVal: 8.72 },
     { topik: 'Aplikasi Mobile JKN tidak dapat diakses (pemanfaatan fitur)', jumlah: 357, persen: '4,51%', persenVal: 4.51 }
   ],
   permintaan: [
@@ -80,10 +80,10 @@ const DEFAULT_CATEGORY_DATA: CategoryBreakdownData = {
     { topik: 'Perubahan Nama Bayi', jumlah: 8672, persen: '7,42%', persenVal: 7.42 }
   ],
   totals: {
-    informasi: 851408,
+    informasi: 852095,
     permintaan: 116901,
-    pengaduan: 7911,
-    total: 976220
+    pengaduan: 7923,
+    total: 976919
   }
 };
 
@@ -138,10 +138,10 @@ export async function fetchCategoryBreakdown(): Promise<CategoryBreakdownData> {
     
     let currentCategory: 'informasi' | 'pengaduan' | 'permintaan' | '' = '';
     const totals = {
-      informasi: 851408,
+      informasi: 852095,
       permintaan: 116901,
-      pengaduan: 7911,
-      total: 976220
+      pengaduan: 7923,
+      total: 976919
     };
 
     const result: CategoryBreakdownData = {
@@ -175,23 +175,21 @@ export async function fetchCategoryBreakdown(): Promise<CategoryBreakdownData> {
         continue;
       }
       
-      // Check for summary/total rows (e.g. "Jumlah, 851408")
+      // Skip summary/total label row inside category table to prevent overriding master totals
       if (lowerCol0 === 'jumlah' || lowerCol0 === 'total') {
-        const val = parseInt(col1.replace(/,/g, '') || '0', 10);
-        if (currentCategory && val > 0) {
-          totals[currentCategory] = val;
-        }
         continue;
       }
 
       if (currentCategory && col0) {
         const jumlah = parseInt(col1.replace(/,/g, '') || '0', 10);
-        const persenVal = parseFloat(col2.replace('%', '').replace(',', '.')) || 0;
+        const catTotal = totals[currentCategory] || 1;
+        const calcPersenVal = Number(((jumlah / catTotal) * 100).toFixed(2));
+        const persenFormatted = calcPersenVal.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
         result[currentCategory].push({
           topik: col0,
           jumlah,
-          persen: col2 || `${persenVal}%`,
-          persenVal
+          persen: persenFormatted,
+          persenVal: calcPersenVal
         });
       }
     }

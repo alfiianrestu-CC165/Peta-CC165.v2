@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   DataRow, 
   CategoryBreakdownData, 
@@ -30,10 +30,10 @@ import {
   YAxis, 
   Tooltip, 
   ResponsiveContainer, 
-  LineChart, 
-  Line, 
+  LineChart,
+  Line,
   CartesianGrid, 
-  LabelList 
+  Cell 
 } from 'recharts';
 import { cn } from '../lib/utils';
 import { CategoryBreakdown } from './CategoryBreakdown';
@@ -90,6 +90,51 @@ export function VoiceDashboard({
 }: VoiceDashboardProps) {
   const [showLogs, setShowLogs] = useState(false);
   const [voiceSubTab, setVoiceSubTab] = useState<'ringkasan' | 'segmen' | 'kedeputian'>('ringkasan');
+
+  // Dapatkan data Rata-rata Waktu Layanan dari baris Total/Rata-Rata (Cell E9 Google Sheets)
+  const summaryRow = useMemo(() => {
+    return data.find(item => item.bulan.toLowerCase().includes('total') || item.bulan.toLowerCase().includes('rata-rata'));
+  }, [data]);
+
+  const avgHandleTime = useMemo(() => {
+    if (summaryRow?.rataWaktu) {
+      const raw = summaryRow.rataWaktu.trim();
+      const parts = raw.split(':');
+      if (parts.length === 3) {
+        return parts.map(p => p.padStart(2, '0')).join(':');
+      }
+      return raw;
+    }
+    return '00:04:01';
+  }, [summaryRow]);
+
+  // Data Disposisi ke KC (Kolom M9: Disposisi Kantor Cabang, Kolom N9: % Disposisi)
+  const disposisiInfo = useMemo(() => {
+    if (summaryRow) {
+      const persen = summaryRow.persenDisposisi ? summaryRow.persenDisposisi.trim() : '0,39%';
+      const count = typeof summaryRow.disposisi === 'number' && !isNaN(summaryRow.disposisi)
+        ? new Intl.NumberFormat('id-ID').format(summaryRow.disposisi)
+        : '3.913';
+      return `${persen} (${count} Tiket)`;
+    }
+    const monthlyRows = data.filter(item => !(item.bulan.toLowerCase().includes('total') || item.bulan.toLowerCase().includes('rata-rata')));
+    if (monthlyRows.length > 0) {
+      const totalDisposisi = monthlyRows.reduce((acc, curr) => acc + (curr.disposisi || 0), 0);
+      const totalLayanan = monthlyRows.reduce((acc, curr) => acc + (curr.total || 0), 0);
+      const pct = totalLayanan > 0 ? ((totalDisposisi / totalLayanan) * 100).toFixed(2).replace('.', ',') + '%' : '0,39%';
+      return `${pct} (${new Intl.NumberFormat('id-ID').format(totalDisposisi || 3913)} Tiket)`;
+    }
+    return '0,39% (3.913 Tiket)';
+  }, [summaryRow, data]);
+
+  // Format persentase 2 digit desimal (koma)
+  const formatPct = (val: number) => {
+    return (Number(val) || 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
+
+  const infoPctFormatted = formatPct(categoryStackedData.infoPct);
+  const reqPctFormatted = formatPct(categoryStackedData.reqPct);
+  const compPctFormatted = formatPct(categoryStackedData.compPct);
 
   return (
     <div className="space-y-4">
@@ -159,62 +204,95 @@ export function VoiceDashboard({
         <>
           {/* Top Metrics Row */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Total Panggilan Masuk */}
-            <div className="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
+            {/* 1. Total Panggilan Masuk */}
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-50/90 via-sky-50/50 to-white p-5 shadow-xs border border-blue-200/80 flex flex-col justify-between transition-all duration-200 hover:shadow-md hover:border-blue-300 group">
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Panggilan Masuk</h3>
-                  <p className="text-2xl sm:text-3xl font-bold mt-1.5 text-slate-800 tracking-tight">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-blue-500" />
+                    <h3 className="text-xs font-bold text-blue-900 uppercase tracking-wider">
+                      Total Panggilan Masuk
+                    </h3>
+                  </div>
+                  <p className="text-3xl sm:text-4xl font-extrabold mt-2 text-slate-900 tracking-tight">
                     {loading && data.length === 0 ? '...' : new Intl.NumberFormat('id-ID').format(totalMasuk)}
                   </p>
-                </div>
-                <div className="p-2.5 rounded-lg bg-blue-50 text-blue-600">
-                  <PhoneCall size={20} />
-                </div>
-              </div>
-              <div className="mt-3 text-[11px] text-slate-500 flex items-center justify-between border-t border-slate-100 pt-2">
-                <span>Panggilan Masuk ke CC 165</span>
-                <span className="font-semibold text-blue-600">Jan – Jul 2026</span>
-              </div>
-            </div>
-
-            {/* % Dijawab Petugas */}
-            <div className="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">% Dijawab Petugas</h3>
-                  <p className="text-2xl sm:text-3xl font-bold mt-1.5 text-blue-600 tracking-tight">
-                    {loading && data.length === 0 ? '...' : persenDijawab}
+                  <p className="text-xs text-slate-500 font-medium mt-0.5">
+                    Total interaksi masuk ke Call Center 165
                   </p>
                 </div>
-                <div className="p-2.5 rounded-lg bg-emerald-50 text-emerald-600">
-                  <PhoneIncoming size={20} />
+                <div className="p-3 rounded-xl bg-blue-100/80 text-blue-700 border border-blue-200/60 shadow-2xs shrink-0 group-hover:scale-105 transition-transform">
+                  <PhoneCall size={22} />
                 </div>
               </div>
-              <div className="mt-3 text-[11px] text-slate-500 flex items-center justify-between border-t border-slate-100 pt-2">
-                <span>Rata-rata Waktu Layanan</span>
-                <span className="font-semibold text-slate-700 flex items-center gap-1">
-                  <Clock size={11} className="text-slate-400" /> 00:03:59
+
+              <div className="mt-4 pt-3 border-t border-blue-100/80 flex items-center justify-between text-xs">
+                <span className="text-slate-500 text-[11px]">Periode Data</span>
+                <span className="inline-flex items-center gap-1 font-bold bg-blue-100/70 text-blue-800 px-2.5 py-0.5 rounded-full border border-blue-200/60 text-[11px]">
+                  Januari – Juli 2026
                 </span>
               </div>
             </div>
 
-            {/* % Tuntas pada CC 165 */}
-            <div className="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
+            {/* 2. % Dijawab Petugas */}
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-50/90 via-teal-50/50 to-white p-5 shadow-xs border border-emerald-200/80 flex flex-col justify-between transition-all duration-200 hover:shadow-md hover:border-emerald-300 group">
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">% Tuntas pada CC 165</h3>
-                  <p className="text-2xl sm:text-3xl font-bold mt-1.5 text-emerald-600 tracking-tight">
-                    {loading && data.length === 0 ? '...' : rataTuntas}
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <h3 className="text-xs font-bold text-emerald-900 uppercase tracking-wider">
+                      % Dijawab Petugas
+                    </h3>
+                  </div>
+                  <p className="text-3xl sm:text-4xl font-extrabold mt-2 text-emerald-950 tracking-tight">
+                    {loading && data.length === 0 ? '...' : persenDijawab}
+                  </p>
+                  <p className="text-xs text-slate-500 font-medium mt-0.5">
+                    Response rate & daya serap agen CC
                   </p>
                 </div>
-                <div className="p-2.5 rounded-lg bg-teal-50 text-teal-600">
-                  <CheckCircle2 size={20} />
+                <div className="p-3 rounded-xl bg-emerald-100/80 text-emerald-700 border border-emerald-200/60 shadow-2xs shrink-0 group-hover:scale-105 transition-transform">
+                  <PhoneIncoming size={22} />
                 </div>
               </div>
-              <div className="mt-3 text-[11px] text-slate-500 flex items-center justify-between border-t border-slate-100 pt-2">
-                <span>Disposisi ke KC</span>
-                <span className="font-semibold text-slate-700">0,7% (6.671)</span>
+
+              <div className="mt-4 pt-3 border-t border-emerald-100/80 flex items-center justify-between text-xs">
+                <span className="text-slate-500 text-[11px] flex items-center gap-1">
+                  <Clock size={12} className="text-emerald-600" /> Avg. Handle Time
+                </span>
+                <span className="inline-flex items-center gap-1 font-bold bg-emerald-100/70 text-emerald-800 px-2.5 py-0.5 rounded-full border border-emerald-200/60 text-[11px]">
+                  {loading && data.length === 0 ? '...' : `${avgHandleTime} Menit`}
+                </span>
+              </div>
+            </div>
+
+            {/* 3. % Tuntas pada CC 165 */}
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-50/90 via-indigo-50/50 to-white p-5 shadow-xs border border-purple-200/80 flex flex-col justify-between transition-all duration-200 hover:shadow-md hover:border-purple-300 group">
+              <div className="flex justify-between items-start">
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-purple-500" />
+                    <h3 className="text-xs font-bold text-purple-900 uppercase tracking-wider">
+                      % Tuntas pada CC 165
+                    </h3>
+                  </div>
+                  <p className="text-3xl sm:text-4xl font-extrabold mt-2 text-purple-950 tracking-tight">
+                    {loading && data.length === 0 ? '...' : rataTuntas}
+                  </p>
+                  <p className="text-xs text-slate-500 font-medium mt-0.5">
+                    First Contact Resolution (FCR)
+                  </p>
+                </div>
+                <div className="p-3 rounded-xl bg-purple-100/80 text-purple-700 border border-purple-200/60 shadow-2xs shrink-0 group-hover:scale-105 transition-transform">
+                  <CheckCircle2 size={22} />
+                </div>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-purple-100/80 flex items-center justify-between text-xs">
+                <span className="text-slate-500 text-[11px]">Disposisi ke KC</span>
+                <span className="inline-flex items-center gap-1 font-bold bg-purple-100/70 text-purple-800 px-2.5 py-0.5 rounded-full border border-purple-200/60 text-[11px]">
+                  {loading && data.length === 0 ? '...' : disposisiInfo}
+                </span>
               </div>
             </div>
           </div>
@@ -236,7 +314,7 @@ export function VoiceDashboard({
                 </p>
               </div>
               <span className="text-[10px] font-bold px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full border border-blue-100/80 shrink-0">
-                Total: {new Intl.NumberFormat('id-ID').format(categoryStackedData.total || 976220)}
+                Total: {new Intl.NumberFormat('id-ID').format(categoryStackedData.total || 976919)}
               </span>
             </div>
 
@@ -252,27 +330,27 @@ export function VoiceDashboard({
                 <div 
                   style={{ width: `${Math.max(categoryStackedData.infoPct, 5)}%` }}
                   className="bg-blue-600 rounded-lg flex items-center justify-center text-white text-[11px] font-bold shadow-2xs transition-all hover:brightness-110 cursor-pointer relative group"
-                  title={`Informasi: ${categoryStackedData.infoPct}% (${new Intl.NumberFormat('id-ID').format(categoryStackedData.info)})`}
+                  title={`Informasi: ${infoPctFormatted}% (${new Intl.NumberFormat('id-ID').format(categoryStackedData.info)})`}
                 >
-                  <span className="truncate px-1.5">{categoryStackedData.infoPct}%</span>
+                  <span className="truncate px-1.5">{infoPctFormatted}%</span>
                 </div>
 
                 {/* Permintaan Segment */}
                 <div 
                   style={{ width: `${Math.max(categoryStackedData.reqPct, 4)}%` }}
                   className="bg-emerald-600 rounded-lg flex items-center justify-center text-white text-[11px] font-bold shadow-2xs transition-all hover:brightness-110 cursor-pointer relative group"
-                  title={`Permintaan: ${categoryStackedData.reqPct}% (${new Intl.NumberFormat('id-ID').format(categoryStackedData.req)})`}
+                  title={`Permintaan: ${reqPctFormatted}% (${new Intl.NumberFormat('id-ID').format(categoryStackedData.req)})`}
                 >
-                  <span className="truncate px-1">{categoryStackedData.reqPct}%</span>
+                  <span className="truncate px-1">{reqPctFormatted}%</span>
                 </div>
 
                 {/* Pengaduan Segment */}
                 <div 
                   style={{ width: `${Math.max(categoryStackedData.compPct, 3)}%` }}
                   className="bg-amber-500 rounded-lg flex items-center justify-center text-white text-[10px] font-bold shadow-2xs transition-all hover:brightness-110 cursor-pointer relative group"
-                  title={`Pengaduan: ${categoryStackedData.compPct}% (${new Intl.NumberFormat('id-ID').format(categoryStackedData.comp)})`}
+                  title={`Pengaduan: ${compPctFormatted}% (${new Intl.NumberFormat('id-ID').format(categoryStackedData.comp)})`}
                 >
-                  <span className="truncate px-0.5">{categoryStackedData.compPct}%</span>
+                  <span className="truncate px-0.5">{compPctFormatted}%</span>
                 </div>
               </div>
             </div>
@@ -291,7 +369,7 @@ export function VoiceDashboard({
                       {new Intl.NumberFormat('id-ID').format(categoryStackedData.info)}
                     </span>
                     <span className="text-[11px] font-bold text-blue-700 bg-blue-100/90 px-1.5 py-0.5 rounded">
-                      {categoryStackedData.infoPct}%
+                      {infoPctFormatted}%
                     </span>
                   </div>
                 </div>
@@ -315,7 +393,7 @@ export function VoiceDashboard({
                       {new Intl.NumberFormat('id-ID').format(categoryStackedData.req)}
                     </span>
                     <span className="text-[11px] font-bold text-emerald-700 bg-emerald-100/90 px-1.5 py-0.5 rounded">
-                      {categoryStackedData.reqPct}%
+                      {reqPctFormatted}%
                     </span>
                   </div>
                 </div>
@@ -339,7 +417,7 @@ export function VoiceDashboard({
                       {new Intl.NumberFormat('id-ID').format(categoryStackedData.comp)}
                     </span>
                     <span className="text-[11px] font-bold text-amber-700 bg-amber-100/90 px-1.5 py-0.5 rounded">
-                      {categoryStackedData.compPct}%
+                      {compPctFormatted}%
                     </span>
                   </div>
                 </div>
@@ -355,7 +433,7 @@ export function VoiceDashboard({
 
           <div className="pt-3 border-t border-slate-100 text-[11px] text-slate-500 flex items-center justify-between">
             <span>Dominasi utama: <strong className="text-blue-700 font-semibold">Kategori Informasi</strong></span>
-            <span className="text-slate-400">87,2% dari total</span>
+            <span className="text-slate-400">{infoPctFormatted}% dari total</span>
           </div>
         </div>
 
@@ -415,77 +493,6 @@ export function VoiceDashboard({
         categoryData={categoryData} 
         categoryTotals={categoryStackedData}
       />
-
-      {/* Quick Segment Participant Showcase Banner */}
-      <div 
-        onClick={() => setVoiceSubTab('segmen')}
-        className="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white p-4 sm:p-5 rounded-2xl shadow-xs border border-blue-800/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 cursor-pointer hover:shadow-md transition-all group"
-      >
-        <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl bg-blue-600/30 border border-blue-400/30 flex items-center justify-center text-blue-300 shrink-0 group-hover:scale-105 transition-transform">
-            <Users size={22} />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] uppercase font-bold tracking-wider text-blue-300 bg-blue-950/80 px-2 py-0.5 rounded border border-blue-700/40">
-                Data Baru
-              </span>
-              <span className="text-xs text-slate-300">Pemanfaatan Berdasarkan Segmen Peserta</span>
-            </div>
-            <h4 className="text-sm sm:text-base font-bold mt-1 text-white flex items-center gap-1.5">
-              Profil Pemanfaat: PBPU (36,5%), PPU (25,3%), PBI APBN (17,0%), dll.
-            </h4>
-            <p className="text-xs text-slate-300 mt-0.5">
-              Analisis mendalam 867.832 pemanfaatan berdasarkan 7 segmen kepesertaan di seluruh Indonesia.
-            </p>
-          </div>
-        </div>
-
-        <button 
-          type="button"
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-all shadow-xs group-hover:translate-x-0.5 shrink-0"
-        >
-          <span>Eksplorasi Segmen Peserta</span>
-          <Users size={14} />
-        </button>
-      </div>
-
-      {/* Embedded Participant Segment Section inside Summary view as well */}
-      <ParticipantSegmentBreakdown segmentData={segmentData} />
-
-      {/* Quick Regional Navigation Banner */}
-      <div 
-        onClick={() => setVoiceSubTab('kedeputian')}
-        className="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white p-4 sm:p-5 rounded-2xl shadow-xs border border-slate-700/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 cursor-pointer hover:shadow-md transition-all group"
-      >
-        <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl bg-indigo-600/30 border border-indigo-400/30 flex items-center justify-center text-indigo-300 shrink-0 group-hover:scale-105 transition-transform">
-            <Globe2 size={22} />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] uppercase font-bold tracking-wider text-indigo-300 bg-indigo-950/80 px-2 py-0.5 rounded border border-indigo-700/40">
-                Peta & Sebaran
-              </span>
-              <span className="text-xs text-slate-300">12 Kedeputian Wilayah • 126 Kantor Cabang</span>
-            </div>
-            <h4 className="text-sm sm:text-base font-bold mt-1 text-white flex items-center gap-1.5">
-              Pemanfaatan per Kedeputian Wilayah & Kantor Cabang
-            </h4>
-            <p className="text-xs text-slate-300 mt-0.5">
-              Lihat sebaran {regionalData.totals?.total ? new Intl.NumberFormat('id-ID').format(regionalData.totals.total) : '867.832'} pemanfaatan data CC 165 di seluruh provinsi & cabang di Indonesia.
-            </p>
-          </div>
-        </div>
-
-        <button 
-          type="button"
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition-all shadow-xs group-hover:translate-x-0.5 shrink-0"
-        >
-          <span>Buka Peta & Kedeputian Wilayah</span>
-          <Globe2 size={14} />
-        </button>
-      </div>
 
       {/* Full-Width Table View */}
       <div className="w-full bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">

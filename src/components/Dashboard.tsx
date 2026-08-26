@@ -158,9 +158,9 @@ export function Dashboard() {
       };
     }
 
-    const infoPct = Number(((info / total) * 100).toFixed(1));
-    const reqPct = Number(((req / total) * 100).toFixed(1));
-    const compPct = Number((100 - infoPct - reqPct).toFixed(1));
+    const infoPct = Number(((info / total) * 100).toFixed(2));
+    const reqPct = Number(((req / total) * 100).toFixed(2));
+    const compPct = Number((100 - infoPct - reqPct).toFixed(2));
 
     return {
       chartData: [{
