@@ -1,9 +1,10 @@
 import Papa from 'papaparse';
-import { DataRow, CategoryBreakdownData } from '../types';
+import { DataRow, CategoryBreakdownData, RegionalData, BranchOfficeData, RegionalSummaryItem } from '../types';
 
 export const SHEET_ID = '1MjFAlH-fl2Y5acLWgNqQcX6E7nYfEol2gi6bHHfvH0U';
 const CSV_URL_MAIN = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
 const CSV_URL_CATEGORY = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=801320162`;
+export const CSV_URL_REGIONAL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=1804505187`;
 
 // Fallback data for category breakdown if network error occurs
 const DEFAULT_CATEGORY_DATA: CategoryBreakdownData = {
@@ -156,6 +157,140 @@ export async function fetchCategoryBreakdown(): Promise<CategoryBreakdownData> {
   } catch (error) {
     console.warn("Could not fetch category breakdown from Google Sheets, using fallback:", error);
     return DEFAULT_CATEGORY_DATA;
+  }
+}
+
+// Fetch Regional Breakdown Dataset (Pemanfaatan per Kedeputian Wilayah & Kantor Cabang)
+export async function fetchRegionalData(): Promise<RegionalData> {
+  const emptyResult: RegionalData = {
+    regions: [],
+    branches: [],
+    provinces: [],
+    totals: { januari: 0, februari: 0, maret: 0, april: 0, mei: 0, juni: 0, juli: 0, total: 0 }
+  };
+
+  try {
+    const res = await fetch(CSV_URL_REGIONAL);
+    if (!res.ok) throw new Error("Gagal mengambil data wilayah dari Google Sheets");
+    
+    const csvText = await res.text();
+    const parsed = Papa.parse<string[]>(csvText, { skipEmptyLines: true });
+    
+    const branches: BranchOfficeData[] = [];
+    const regionMap = new Map<string, RegionalSummaryItem>();
+    const provinceMap = new Map<string, number>();
+    const totals = { januari: 0, februari: 0, maret: 0, april: 0, mei: 0, juni: 0, juli: 0, total: 0 };
+    
+    // Rows usually start with Header at row 0 and row 1, data starts row 2
+    for (let i = 0; i < parsed.data.length; i++) {
+      const row = parsed.data[i];
+      if (!row || row.length < 4) continue;
+      
+      const kc = (row[0] || '').trim();
+      const kw = (row[1] || '').trim();
+      const prov = (row[2] || '').trim();
+      
+      // Skip header rows
+      if (!kw || !kw.toLowerCase().includes('kedeputian wilayah') || !kc || kc.toLowerCase() === 'kantor cabang') {
+        continue;
+      }
+      
+      const jan = parseInt((row[3] || '0').replace(/,/g, ''), 10) || 0;
+      const feb = parseInt((row[4] || '0').replace(/,/g, ''), 10) || 0;
+      const mar = parseInt((row[5] || '0').replace(/,/g, ''), 10) || 0;
+      const apr = parseInt((row[6] || '0').replace(/,/g, ''), 10) || 0;
+      const may = parseInt((row[7] || '0').replace(/,/g, ''), 10) || 0;
+      const jun = parseInt((row[8] || '0').replace(/,/g, ''), 10) || 0;
+      const jul = parseInt((row[9] || '0').replace(/,/g, ''), 10) || 0;
+      const branchTotal = jan + feb + mar + apr + may + jun + jul;
+      
+      const branchObj: BranchOfficeData = {
+        kantorCabang: kc,
+        kedeputianWilayah: kw,
+        provinsi: prov,
+        januari: jan,
+        februari: feb,
+        maret: mar,
+        april: apr,
+        mei: may,
+        juni: jun,
+        juli: jul,
+        total: branchTotal
+      };
+      
+      branches.push(branchObj);
+      
+      totals.januari += jan;
+      totals.februari += feb;
+      totals.maret += mar;
+      totals.april += apr;
+      totals.mei += may;
+      totals.juni += jun;
+      totals.juli += jul;
+      totals.total += branchTotal;
+      
+      if (!regionMap.has(kw)) {
+        const romanId = kw.replace(/kedeputian wilayah/i, '').trim();
+        regionMap.set(kw, {
+          kedeputianWilayah: kw,
+          romanId,
+          provinces: [],
+          branchCount: 0,
+          januari: 0,
+          februari: 0,
+          maret: 0,
+          april: 0,
+          mei: 0,
+          juni: 0,
+          juli: 0,
+          total: 0,
+          percentage: 0,
+          branches: []
+        });
+      }
+      
+      const reg = regionMap.get(kw)!;
+      reg.branches.push(branchObj);
+      reg.branchCount += 1;
+      if (prov && !reg.provinces.includes(prov)) {
+        reg.provinces.push(prov);
+      }
+      reg.januari += jan;
+      reg.februari += feb;
+      reg.maret += mar;
+      reg.april += apr;
+      reg.mei += may;
+      reg.juni += jun;
+      reg.juli += jul;
+      reg.total += branchTotal;
+      
+      if (prov) {
+        provinceMap.set(prov, (provinceMap.get(prov) || 0) + branchTotal);
+      }
+    }
+    
+    const regions = Array.from(regionMap.values()).map(r => ({
+      ...r,
+      percentage: totals.total > 0 ? (r.total / totals.total) * 100 : 0
+    }));
+    
+    const provinces = Array.from(provinceMap.entries())
+      .map(([name, total]) => ({
+        name,
+        total,
+        region: branches.find(b => b.provinsi === name)?.kedeputianWilayah || ""
+      }))
+      .sort((a, b) => b.total - a.total);
+      
+    return {
+      regions,
+      branches,
+      provinces,
+      totals
+    };
+  } catch (error) {
+    console.warn("Could not fetch regional data from Google Sheets:", error);
+    return emptyResult;
   }
 }
 

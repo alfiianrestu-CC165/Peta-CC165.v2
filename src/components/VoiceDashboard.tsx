@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DataRow, CategoryBreakdownData } from '../types';
+import { DataRow, CategoryBreakdownData, RegionalData } from '../types';
 import { 
   Database, 
   PhoneCall, 
@@ -12,7 +12,10 @@ import {
   ChevronDown,
   ChevronUp,
   Clock,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Globe2,
+  BarChart3,
+  Layers
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -28,6 +31,7 @@ import {
 } from 'recharts';
 import { cn } from '../lib/utils';
 import { CategoryBreakdown } from './CategoryBreakdown';
+import { RegionalBreakdown } from './RegionalBreakdown';
 
 export interface LogItem {
   id: string;
@@ -58,6 +62,7 @@ export interface VoiceDashboardProps {
   rataTuntas: string;
   logs: LogItem[];
   setLogs: React.Dispatch<React.SetStateAction<LogItem[]>>;
+  regionalData: RegionalData;
 }
 
 export function VoiceDashboard({
@@ -72,62 +77,110 @@ export function VoiceDashboard({
   rataTuntas,
   logs,
   setLogs,
+  regionalData,
 }: VoiceDashboardProps) {
   const [showLogs, setShowLogs] = useState(false);
+  const [voiceSubTab, setVoiceSubTab] = useState<'ringkasan' | 'kedeputian'>('ringkasan');
 
   return (
     <div className="space-y-4">
-      {/* Top Metrics Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Total Panggilan Masuk */}
-        <div className="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
-          <div className="flex justify-between items-start">
-            <div>
-              <h3 className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Panggilan Masuk</h3>
-              <p className="text-2xl sm:text-3xl font-bold mt-1.5 text-slate-800 tracking-tight">
-                {new Intl.NumberFormat('id-ID').format(totalMasuk)}
-              </p>
-            </div>
-            <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center">
-              <PhoneIncoming size={20} />
-            </div>
-          </div>
-          <div className="mt-3 flex items-center gap-1.5 text-[11px] text-slate-500">
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-            Akumulasi Panggilan Masuk
-          </div>
+      {/* Sub-menu Tabs for Voice */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-2 rounded-xl border border-slate-200 shadow-2xs">
+        <div className="flex items-center p-1 bg-slate-100/90 rounded-lg border border-slate-200 w-fit">
+          <button
+            onClick={() => setVoiceSubTab('ringkasan')}
+            className={cn(
+              "flex items-center gap-2 px-3.5 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer",
+              voiceSubTab === 'ringkasan'
+                ? "bg-white text-blue-700 shadow-xs border border-slate-200/80"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
+            )}
+          >
+            <BarChart3 size={14} className={voiceSubTab === 'ringkasan' ? "text-blue-600" : "text-slate-500"} />
+            <span>Ringkasan & Kategori Pemanfaatan</span>
+          </button>
+
+          <button
+            onClick={() => setVoiceSubTab('kedeputian')}
+            className={cn(
+              "flex items-center gap-2 px-3.5 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer",
+              voiceSubTab === 'kedeputian'
+                ? "bg-white text-blue-700 shadow-xs border border-slate-200/80"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
+            )}
+          >
+            <Globe2 size={14} className={voiceSubTab === 'kedeputian' ? "text-blue-600" : "text-slate-500"} />
+            <span>Pemanfaatan per Kedeputian Wilayah</span>
+            <span className="text-[10px] bg-blue-100 text-blue-800 font-bold px-1.5 py-0.5 rounded-full">
+              12 Wilayah
+            </span>
+          </button>
         </div>
 
-        {/* Success Call Ratio */}
-        <div className="bg-blue-600 p-4 sm:p-5 rounded-xl shadow-sm text-white flex flex-col justify-between overflow-hidden relative">
-          <div className="relative z-10">
-            <h3 className="text-[11px] font-semibold uppercase opacity-85 tracking-wider">Success Call Ratio</h3>
-            <p className="text-2xl sm:text-3xl font-bold mt-1.5 tracking-tight">{persenDijawab}</p>
-          </div>
-          <div className="relative z-10 flex items-center gap-1.5 text-[11px] opacity-90 mt-3">
-            <Activity size={13} />
-            Panggilan Dijawab Petugas
-          </div>
-          <div className="absolute -right-3 -bottom-3 opacity-15 scale-110 transform rotate-12 pointer-events-none">
-            <PhoneCall size={90} />
-          </div>
-        </div>
-
-        {/* Rata-rata % Tuntas */}
-        <div className="bg-emerald-600 p-4 sm:p-5 rounded-xl shadow-sm text-white flex flex-col justify-between overflow-hidden relative">
-          <div className="relative z-10">
-            <h3 className="text-[11px] font-semibold uppercase opacity-85 tracking-wider">Rata-rata % Tuntas</h3>
-            <p className="text-2xl sm:text-3xl font-bold mt-1.5 tracking-tight">{rataTuntas}</p>
-          </div>
-          <div className="relative z-10 flex items-center gap-1.5 text-[11px] opacity-90 mt-3">
-            <CheckCircle2 size={13} />
-            Tuntas pada Layanan CC 165
-          </div>
-          <div className="absolute -right-3 -bottom-3 opacity-15 scale-110 transform rotate-12 pointer-events-none">
-            <ShieldCheck size={90} />
-          </div>
+        <div className="hidden sm:flex items-center gap-2 pr-3 text-xs text-slate-500 font-medium">
+          <Layers size={13} className="text-slate-400" />
+          <span>Sub Menu Layanan Voice CC 165</span>
         </div>
       </div>
+
+      {voiceSubTab === 'kedeputian' ? (
+        <RegionalBreakdown
+          regionalData={regionalData}
+          loading={loading}
+        />
+      ) : (
+        <>
+          {/* Top Metrics Row */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Total Panggilan Masuk */}
+            <div className="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Panggilan Masuk</h3>
+                  <p className="text-2xl sm:text-3xl font-bold mt-1.5 text-slate-800 tracking-tight">
+                    {new Intl.NumberFormat('id-ID').format(totalMasuk)}
+                  </p>
+                </div>
+                <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center">
+                  <PhoneIncoming size={20} />
+                </div>
+              </div>
+              <div className="mt-3 flex items-center gap-1.5 text-[11px] text-slate-500">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                Akumulasi Panggilan Masuk
+              </div>
+            </div>
+
+            {/* Success Call Ratio */}
+            <div className="bg-blue-600 p-4 sm:p-5 rounded-xl shadow-sm text-white flex flex-col justify-between overflow-hidden relative">
+              <div className="relative z-10">
+                <h3 className="text-[11px] font-semibold uppercase opacity-85 tracking-wider">Success Call Ratio</h3>
+                <p className="text-2xl sm:text-3xl font-bold mt-1.5 tracking-tight">{persenDijawab}</p>
+              </div>
+              <div className="relative z-10 flex items-center gap-1.5 text-[11px] opacity-90 mt-3">
+                <Activity size={13} />
+                Panggilan Dijawab Petugas
+              </div>
+              <div className="absolute -right-3 -bottom-3 opacity-15 scale-110 transform rotate-12 pointer-events-none">
+                <PhoneCall size={90} />
+              </div>
+            </div>
+
+            {/* Rata-rata % Tuntas */}
+            <div className="bg-emerald-600 p-4 sm:p-5 rounded-xl shadow-sm text-white flex flex-col justify-between overflow-hidden relative">
+              <div className="relative z-10">
+                <h3 className="text-[11px] font-semibold uppercase opacity-85 tracking-wider">Rata-rata % Tuntas</h3>
+                <p className="text-2xl sm:text-3xl font-bold mt-1.5 tracking-tight">{rataTuntas}</p>
+              </div>
+              <div className="relative z-10 flex items-center gap-1.5 text-[11px] opacity-90 mt-3">
+                <CheckCircle2 size={13} />
+                Tuntas pada Layanan CC 165
+              </div>
+              <div className="absolute -right-3 -bottom-3 opacity-15 scale-110 transform rotate-12 pointer-events-none">
+                <ShieldCheck size={90} />
+              </div>
+            </div>
+          </div>
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
@@ -288,6 +341,40 @@ export function VoiceDashboard({
         categoryTotals={categoryStackedData}
       />
 
+      {/* Quick Regional Navigation Banner */}
+      <div 
+        onClick={() => setVoiceSubTab('kedeputian')}
+        className="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white p-4 sm:p-5 rounded-xl shadow-sm border border-blue-800/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 cursor-pointer hover:shadow-md transition-all group"
+      >
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-lg bg-blue-600/30 border border-blue-400/30 flex items-center justify-center text-blue-300 shrink-0 group-hover:scale-105 transition-transform">
+            <Globe2 size={22} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] uppercase font-bold tracking-wider text-blue-300 bg-blue-950/80 px-2 py-0.5 rounded border border-blue-700/40">
+                Sub Menu Voice
+              </span>
+              <span className="text-xs text-slate-300">12 Kedeputian Wilayah • 126 Kantor Cabang</span>
+            </div>
+            <h4 className="text-sm sm:text-base font-bold mt-1 text-white flex items-center gap-1.5">
+              Pemanfaatan per Kedeputian Wilayah & Kantor Cabang
+            </h4>
+            <p className="text-xs text-slate-300 mt-0.5">
+              Lihat sebaran {regionalData.totals?.total ? new Intl.NumberFormat('id-ID').format(regionalData.totals.total) : '867.832'} pemanfaatan data CC 165 di seluruh provinsi & cabang di Indonesia.
+            </p>
+          </div>
+        </div>
+
+        <button 
+          type="button"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-all shadow-sm group-hover:translate-x-0.5 shrink-0"
+        >
+          <span>Buka Sub Menu Kedeputian Wilayah</span>
+          <Globe2 size={14} />
+        </button>
+      </div>
+
       {/* Full-Width Table View */}
       <div className="w-full bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
         <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
@@ -375,6 +462,8 @@ export function VoiceDashboard({
           </table>
         </div>
       </div>
+      </>
+      )}
 
       {/* Collapsible System Logs (When toggled) */}
       {showLogs && (

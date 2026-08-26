@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { DataRow, CategoryBreakdownData } from '../types';
-import { fetchSheetData, fetchCategoryBreakdown } from '../lib/sheets';
+import { DataRow, CategoryBreakdownData, RegionalData } from '../types';
+import { fetchSheetData, fetchCategoryBreakdown, fetchRegionalData } from '../lib/sheets';
 import { 
   RefreshCw, 
   Search, 
@@ -24,6 +24,12 @@ export function Dashboard() {
     informasi: [],
     pengaduan: [],
     permintaan: []
+  });
+  const [regionalData, setRegionalData] = useState<RegionalData>({
+    regions: [],
+    branches: [],
+    provinces: [],
+    totals: { januari: 0, februari: 0, maret: 0, april: 0, mei: 0, juni: 0, juli: 0, total: 0 }
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -61,17 +67,18 @@ export function Dashboard() {
     try {
       if (!isPolling) setLoading(true);
       setError(null);
-      const [rows, catBreakdown] = await Promise.all([
+      const [rows, catBreakdown, regData] = await Promise.all([
         fetchSheetData(),
-        fetchCategoryBreakdown()
+        fetchCategoryBreakdown(),
+        fetchRegionalData()
       ]);
       
-      const newDataString = JSON.stringify({ rows, catBreakdown });
+      const newDataString = JSON.stringify({ rows, catBreakdown, regData });
       
       // On first load, just set data, don't notify unless we had previous data
       if (previousDataRef.current === '') {
          previousDataRef.current = newDataString;
-         addLog('Data Loaded', `${rows.length} data bulanan & kategori pemanfaatan dimuat dari Google Sheets.`, 'success');
+         addLog('Data Loaded', `${rows.length} data bulanan, kategori, & 12 Kedeputian Wilayah dimuat dari Google Sheets.`, 'success');
       } else if (isPolling && previousDataRef.current !== newDataString) {
         setNotification('Data terbaru telah disinkronkan dari Google Sheets.');
         addLog('Sync Successful', 'Perubahan terbaru dari Google Sheets diperbarui secara otomatis.', 'success');
@@ -81,6 +88,7 @@ export function Dashboard() {
       
       setData(rows);
       setCategoryData(catBreakdown);
+      setRegionalData(regData);
     } catch (err: any) {
       if (!isPolling) {
         setError(err.message || 'Gagal memuat data dari Google Sheets');
@@ -233,7 +241,7 @@ export function Dashboard() {
                  <button
                    onClick={() => setActiveTab('voice')}
                    className={cn(
-                     "flex items-center gap-2 px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200",
+                     "flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer",
                      activeTab === 'voice'
                        ? "bg-blue-600 text-white shadow-sm shadow-blue-500/25"
                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
@@ -246,7 +254,7 @@ export function Dashboard() {
                  <button
                    onClick={() => setActiveTab('social')}
                    className={cn(
-                     "flex items-center gap-2 px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200",
+                     "flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer",
                      activeTab === 'social'
                        ? "bg-blue-600 text-white shadow-sm shadow-blue-500/25"
                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
@@ -257,7 +265,7 @@ export function Dashboard() {
                  </button>
                </div>
 
-               {/* Refresh Data Button (Active for both Voice and Media Sosial tabs) */}
+               {/* Refresh Data Button */}
                <button
                  onClick={() => {
                    if (activeTab === 'voice') {
@@ -313,6 +321,7 @@ export function Dashboard() {
               rataTuntas={rataTuntas}
               logs={logs}
               setLogs={setLogs}
+              regionalData={regionalData}
             />
           ) : (
             <SocialMediaDashboard searchTerm={searchTerm} />
