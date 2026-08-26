@@ -238,7 +238,7 @@ export function VoiceDashboard({
               <Activity size={16} className="text-blue-600" /> Tren Panggilan Masuk per Bulan
             </h3>
             <span className="text-[10px] font-semibold px-2 py-0.5 bg-blue-50 text-blue-700 rounded-full">
-              Volume Bulanan
+              Trend Bulanan
             </span>
           </div>
           <div className="w-full h-56 sm:h-64">
@@ -297,7 +297,7 @@ export function VoiceDashboard({
               Data Lengkap Panggilan CC 165
             </h3>
             <span className="text-[11px] bg-blue-50 text-blue-700 px-2.5 py-0.5 rounded-full font-semibold border border-blue-100">
-              {filteredData.length} Bulan
+              {filteredData.filter(d => !d.bulan.toLowerCase().includes('total') && !d.bulan.toLowerCase().includes('rata-rata')).length || 7} Bulan
             </span>
           </div>
 

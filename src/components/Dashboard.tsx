@@ -9,12 +9,14 @@ import {
   PhoneCall, 
   MessagesSquare, 
   Bell, 
-  Award
+  Award,
+  Clock
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { VoiceDashboard, LogItem } from './VoiceDashboard';
 import { SocialMediaDashboard } from './SocialMediaDashboard';
+import { getFormattedBuildTime } from '../lib/buildInfo';
 
 export function Dashboard() {
   const [data, setData] = useState<DataRow[]>([]);
@@ -34,6 +36,7 @@ export function Dashboard() {
   // Search & Filter
   const [searchTerm, setSearchTerm] = useState('');
   const [socialRefreshing, setSocialRefreshing] = useState(false);
+  const lastUpdateTime = useMemo(() => getFormattedBuildTime(), []);
   
   const previousDataRef = useRef<string>('');
 
@@ -214,7 +217,14 @@ export function Dashboard() {
                    <span className="text-xs font-semibold tracking-wide uppercase">Executive Summary Report</span>
                  </div>
                </div>
-               <p className="text-slate-500 text-sm font-medium mt-1">Pemanfaatan Data</p>
+               <div className="flex flex-wrap items-center gap-2 mt-1">
+                 <p className="text-slate-500 text-sm font-medium">Pemanfaatan Data</p>
+                 <span className="text-slate-300 text-xs hidden sm:inline">•</span>
+                 <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] leading-tight font-normal text-slate-400 bg-slate-50 border border-slate-200/50">
+                   <Clock size={9} className="text-slate-400 shrink-0" />
+                   <span>Last Update: {lastUpdateTime}</span>
+                 </div>
+               </div>
              </div>
 
              <div className="flex flex-wrap items-center gap-3">

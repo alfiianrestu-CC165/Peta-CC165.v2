@@ -103,7 +103,7 @@ export function CategoryBreakdown({ categoryData, categoryTotals }: CategoryBrea
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-0.5">
-            Volume pemanfaatan kategori Informasi, Permintaan, dan Pengaduan sesuai data Google Sheets
+            Trend pemanfaatan kategori Informasi, Permintaan, dan Pengaduan bulan Januari sd Juli 2026
           </p>
         </div>
 
