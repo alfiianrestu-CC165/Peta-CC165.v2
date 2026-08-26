@@ -241,11 +241,11 @@ export function VoiceDashboard({
               Volume Bulanan
             </span>
           </div>
-          <div className="w-full h-44 sm:h-48">
+          <div className="w-full h-56 sm:h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData} margin={{ top: 8, right: 10, left: -10, bottom: 0 }}>
+              <LineChart data={chartData} margin={{ top: 12, right: 14, left: -6, bottom: 4 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="bulan" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} dy={5} />
+                <XAxis dataKey="bulan" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 500, fill: '#64748b' }} dy={6} />
                 <YAxis
                   axisLine={false}
                   tickLine={false}
@@ -271,10 +271,10 @@ export function VoiceDashboard({
                   type="monotone"
                   dataKey="panggilanMasuk"
                   name="Panggilan Masuk"
-                  stroke="#3b82f6"
-                  strokeWidth={2}
-                  dot={{ r: 3, strokeWidth: 1.5, fill: '#fff' }}
-                  activeDot={{ r: 5, fill: '#3b82f6' }}
+                  stroke="#2563eb"
+                  strokeWidth={4}
+                  dot={{ r: 4.5, strokeWidth: 2, stroke: '#2563eb', fill: '#ffffff' }}
+                  activeDot={{ r: 7, strokeWidth: 2, stroke: '#ffffff', fill: '#1d4ed8' }}
                 />
               </LineChart>
             </ResponsiveContainer>
