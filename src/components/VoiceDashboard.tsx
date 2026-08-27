@@ -567,7 +567,7 @@ export function VoiceDashboard({
                       <td className="px-2 py-1.5 text-right">{new Intl.NumberFormat('id-ID').format(row.informasi)}</td>
                       <td className="px-2 py-1.5 text-right">{new Intl.NumberFormat('id-ID').format(row.permintaan)}</td>
                       <td className="px-2 py-1.5 text-right">{new Intl.NumberFormat('id-ID').format(row.pengaduan)}</td>
-                      <td className="px-2 py-1.5 text-right font-medium">{new Intl.NumberFormat('id-ID').format(row.tuntas)}</td>
+                      <td className="px-2 py-1.5 text-right font-medium">{new Intl.NumberFormat('id-ID').format(row.total || row.tuntas)}</td>
                       <td className="px-2 py-1.5 text-right font-bold text-emerald-600">{row.persenTuntas}</td>
                       <td className="px-2 py-1.5 text-right">{new Intl.NumberFormat('id-ID').format(row.disposisi)}</td>
                       <td className="px-2 py-1.5 text-right font-medium text-slate-600">{row.persenDisposisi}</td>
