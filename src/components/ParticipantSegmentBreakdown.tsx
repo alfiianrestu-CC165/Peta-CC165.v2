@@ -256,24 +256,26 @@ export function ParticipantSegmentBreakdown({ segmentData }: ParticipantSegmentB
                           : "border-slate-200 bg-white"
                       )}
                     >
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-start gap-3 flex-1 min-w-0">
                           <div 
-                            className="w-8 h-8 rounded-lg flex items-center justify-center text-white shrink-0 shadow-2xs"
+                            className="w-8 h-8 rounded-lg flex items-center justify-center text-white shrink-0 shadow-2xs mt-0.5"
                             style={{ backgroundColor: seg.color }}
                           >
                             <Icon size={16} />
                           </div>
-                          <div>
-                            <div className="flex items-center gap-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
                               <span className="text-xs font-bold text-slate-900">{seg.segmentName}</span>
-                              <span className="text-[11px] text-slate-500 hidden sm:inline">— {seg.fullName}</span>
+                              <span className="text-[11px] text-slate-500">— {seg.fullName}</span>
                             </div>
-                            <p className="text-[11px] text-slate-400 mt-0.5 line-clamp-1">{seg.description}</p>
+                            <p className="text-[11px] text-slate-500 mt-1 whitespace-normal break-words leading-relaxed">
+                              {seg.description}
+                            </p>
                           </div>
                         </div>
 
-                        <div className="text-right shrink-0">
+                        <div className="text-right shrink-0 pl-1">
                           <div className="flex items-center justify-end gap-1.5">
                             <span className="text-xs sm:text-sm font-extrabold text-slate-900">
                               {new Intl.NumberFormat('id-ID').format(seg.total)}
@@ -285,7 +287,7 @@ export function ParticipantSegmentBreakdown({ segmentData }: ParticipantSegmentB
                               {seg.percentage.toFixed(1)}%
                             </span>
                           </div>
-                          <span className="text-[10px] text-slate-400">
+                          <span className="text-[10px] text-slate-400 block mt-0.5">
                             rata-rata {(seg.total / 7).toLocaleString('id-ID', { maximumFractionDigits: 0 })} / bln
                           </span>
                         </div>
@@ -308,12 +310,17 @@ export function ParticipantSegmentBreakdown({ segmentData }: ParticipantSegmentB
 
               {/* Right 5 Cols: Donut Chart & Insight Box */}
               <div className="lg:col-span-5 flex flex-col gap-4">
-                <div className="bg-slate-50/80 p-4 sm:p-5 rounded-xl border border-slate-200 flex-1 flex flex-col items-center justify-center">
-                  <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 self-start">
-                    Proporsi Segmen Kepesertaan
-                  </h4>
+                <div className="bg-slate-50/80 p-4 sm:p-5 rounded-xl border border-slate-200 flex-1 flex flex-col items-center">
+                  <div className="w-full flex items-center justify-between mb-2">
+                    <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                      Proporsi Segmen Kepesertaan
+                    </h4>
+                    <span className="text-[11px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                      7 Segmen
+                    </span>
+                  </div>
 
-                  <div className="w-full h-56 relative flex items-center justify-center">
+                  <div className="w-full h-64 sm:h-72 relative flex items-center justify-center my-1">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
@@ -322,8 +329,8 @@ export function ParticipantSegmentBreakdown({ segmentData }: ParticipantSegmentB
                           nameKey="name"
                           cx="50%"
                           cy="50%"
-                          innerRadius={55}
-                          outerRadius={85}
+                          innerRadius={68}
+                          outerRadius={102}
                           paddingAngle={3}
                         >
                           {pieData.map((entry, index) => (
@@ -345,23 +352,55 @@ export function ParticipantSegmentBreakdown({ segmentData }: ParticipantSegmentB
                       </PieChart>
                     </ResponsiveContainer>
                     {/* Centered Donut Label */}
-                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                      <span className="text-[11px] text-slate-400 font-semibold uppercase">Total Pemanfaatan</span>
-                      <span className="text-base font-extrabold text-slate-800">
+                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center px-1">
+                      <span className="text-[9.5px] text-slate-500 font-bold uppercase tracking-wider leading-none">
+                        Total Pemanfaatan
+                      </span>
+                      <span className="text-base sm:text-lg font-bold text-slate-900 tracking-tight my-0.5">
                         {new Intl.NumberFormat('id-ID').format(grandTotal)}
+                      </span>
+                      <span className="text-[9px] text-slate-400 font-medium leading-none">
+                        Interaksi (100%)
                       </span>
                     </div>
                   </div>
 
-                  {/* Micro Legend */}
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 w-full mt-2 pt-3 border-t border-slate-200/80">
-                    {segments.slice(0, 4).map(s => (
-                      <div key={s.segmentName} className="flex items-center gap-1.5 text-[11px]">
-                        <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: s.color }} />
-                        <span className="text-slate-600 truncate">{s.segmentName}</span>
-                        <span className="font-bold text-slate-800 ml-auto">{s.percentage.toFixed(1)}%</span>
-                      </div>
-                    ))}
+                  {/* Complete 7-Segment Legend with Description & Percentage */}
+                  <div className="w-full mt-2 pt-3 border-t border-slate-200/80">
+                    <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 px-1">
+                      <span>Keterangan Segmen</span>
+                      <span>Proporsi</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-1.5 w-full">
+                      {segments.map(s => (
+                        <div 
+                          key={s.segmentName} 
+                          onClick={() => setSelectedSegment(selectedSegment === s.segmentName ? 'WILAYAH' : s.segmentName)}
+                          className={cn(
+                            "flex items-center justify-between gap-1.5 text-[11px] px-2 py-1.5 rounded-lg border transition-all cursor-pointer",
+                            selectedSegment === s.segmentName 
+                              ? "bg-blue-50/80 border-blue-300 font-semibold shadow-2xs" 
+                              : "bg-white/80 border-slate-100 hover:bg-white hover:border-slate-200"
+                          )}
+                          title={`${s.fullName} (${s.description}): ${new Intl.NumberFormat('id-ID').format(s.total)} interaksi`}
+                        >
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <span className="w-2.5 h-2.5 rounded-full shrink-0 shadow-2xs" style={{ backgroundColor: s.color }} />
+                            <span className="text-slate-700 font-medium truncate" title={s.fullName}>
+                              {s.segmentName}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1 shrink-0 ml-1">
+                            <span 
+                              className="text-[10.5px] font-bold px-1.5 py-0.5 rounded text-white shadow-2xs"
+                              style={{ backgroundColor: s.color }}
+                            >
+                              {s.percentage.toFixed(1)}%
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
@@ -388,37 +427,71 @@ export function ParticipantSegmentBreakdown({ segmentData }: ParticipantSegmentB
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <h4 className="text-sm font-bold text-slate-800">Tren Pemanfaatan Segmen per Bulan (Jan – Jul 2026)</h4>
-                <p className="text-xs text-slate-500">Pergerakan interaksi layanan 165 untuk setiap segmen peserta dari waktu ke waktu (Stacked Bar)</p>
+                <p className="text-xs text-slate-500">Visualisasi komposisi pemanfaatan 7 segmen peserta per bulan dalam bentuk Stacked Bar Chart</p>
               </div>
-              <div className="text-xs text-slate-600 bg-blue-50 px-3 py-1 rounded-lg border border-blue-200">
-                Puncak Pemanfaatan: <strong className="text-blue-700 font-bold">Januari (160.249) & Februari (158.425)</strong>
+              <div className="flex items-center gap-2">
+                <div className="text-xs text-slate-600 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200">
+                  Puncak Pemanfaatan: <strong className="text-blue-700 font-bold">Januari (160.249) & Februari (158.425)</strong>
+                </div>
               </div>
             </div>
 
-            <div className="w-full h-80 bg-slate-50/50 p-4 rounded-xl border border-slate-200">
+            <div className="w-full h-[400px] bg-slate-50/60 p-4 rounded-xl border border-slate-200 shadow-2xs">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={monthlyChartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                  <XAxis dataKey="fullMonth" tick={{ fontSize: 12, fill: '#475569', fontWeight: 600 }} />
-                  <YAxis 
+                <BarChart 
+                  layout="vertical"
+                  data={monthlyChartData} 
+                  margin={{ top: 10, right: 25, left: 10, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} vertical={true} stroke="#e2e8f0" />
+                  <XAxis 
+                    type="number"
                     tickFormatter={(val) => `${(val / 1000).toFixed(0)}k`} 
                     tick={{ fontSize: 11, fill: '#64748b' }} 
+                    axisLine={{ stroke: '#cbd5e1' }}
+                  />
+                  <YAxis 
+                    type="category"
+                    dataKey="fullMonth" 
+                    tick={{ fontSize: 12, fill: '#334155', fontWeight: 600 }} 
+                    axisLine={{ stroke: '#cbd5e1' }}
+                    width={85}
                   />
                   <Tooltip 
-                    formatter={(val: number, name: string) => [
-                      new Intl.NumberFormat('id-ID').format(val),
-                      name
-                    ]}
-                    contentStyle={{ borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '12px', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                    formatter={(val: number, name: string, item: any) => {
+                      const mTotal = item?.payload?.total || 1;
+                      const pct = ((val / mTotal) * 100).toFixed(1);
+                      return [
+                        `${new Intl.NumberFormat('id-ID').format(val)} (${pct}%)`,
+                        name
+                      ];
+                    }}
+                    labelFormatter={(label, items) => {
+                      const monthItem = items?.[0]?.payload;
+                      const monthTotal = monthItem ? new Intl.NumberFormat('id-ID').format(monthItem.total) : '';
+                      return `${label} 2026 ${monthTotal ? `• Total: ${monthTotal} Pemanfaatan` : ''}`;
+                    }}
+                    contentStyle={{ 
+                      borderRadius: '10px', 
+                      border: '1px solid #cbd5e1', 
+                      fontSize: '12px', 
+                      boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+                      backgroundColor: 'rgba(255, 255, 255, 0.98)',
+                      padding: '10px 14px'
+                    }}
                   />
-                  <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }} iconType="circle" iconSize={8} />
-                  <Bar dataKey="PBPU" name="PBPU (Mandiri)" stackId="a" fill="#2563eb" />
-                  <Bar dataKey="PPU" name="PPU (Swasta/BUMN)" stackId="a" fill="#0d9488" />
-                  <Bar dataKey="PBI APBN" name="PBI APBN" stackId="a" fill="#16a34a" />
-                  <Bar dataKey="PBI APBD" name="PBI APBD" stackId="a" fill="#ca8a04" />
-                  <Bar dataKey="PPU PN" name="PPU PN (ASN/TNI/POLRI)" stackId="a" fill="#7c3aed" />
-                  <Bar dataKey="BP" name="Bukan Pekerja (BP)" stackId="a" fill="#ea580c" />
-                  <Bar dataKey="Belum Terdaftar" name="Belum Terdaftar" stackId="a" fill="#64748b" radius={[4, 4, 0, 0]} />
+                  <Legend 
+                    wrapperStyle={{ fontSize: '11px', paddingTop: '12px' }} 
+                    iconType="circle" 
+                    iconSize={9} 
+                  />
+                  <Bar dataKey="PBPU" name="PBPU (Mandiri)" stackId="segmen" fill="#2563eb" />
+                  <Bar dataKey="PPU" name="PPU (Swasta/BUMN)" stackId="segmen" fill="#0d9488" />
+                  <Bar dataKey="PBI APBN" name="PBI APBN" stackId="segmen" fill="#16a34a" />
+                  <Bar dataKey="PBI APBD" name="PBI APBD" stackId="segmen" fill="#ca8a04" />
+                  <Bar dataKey="PPU PN" name="PPU PN (ASN/TNI/POLRI)" stackId="segmen" fill="#7c3aed" />
+                  <Bar dataKey="BP" name="Bukan Pekerja (BP)" stackId="segmen" fill="#ea580c" />
+                  <Bar dataKey="Belum Terdaftar" name="Belum Terdaftar" stackId="segmen" fill="#64748b" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

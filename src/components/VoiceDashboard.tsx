@@ -518,32 +518,66 @@ export function VoiceDashboard({
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
+          <table className="w-full border-collapse border border-slate-200">
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-100/70 text-[10px] sm:text-xs font-semibold text-slate-700 uppercase">
-                <th className="px-2.5 py-2.5">Bulan</th>
-                <th className="px-2 py-2.5 text-right">Masuk</th>
-                <th className="px-2 py-2.5 text-right">Dijawab</th>
-                <th className="px-2 py-2.5 text-right">% Jawab</th>
-                <th className="px-2 py-2.5 text-center">Waktu</th>
-                <th className="px-2 py-2.5 text-center">&lt;20 Detik</th>
-                <th className="px-2 py-2.5 text-center">Informasi</th>
-                <th className="px-2 py-2.5 text-center">Permintaan</th>
-                <th className="px-2 py-2.5 text-center">Pengaduan</th>
-                <th className="px-2 py-2.5 text-center">Tuntas</th>
-                <th className="px-2 py-2.5 text-center">% Tuntas</th>
-                <th className="px-2 py-2.5 text-center">Disposisi</th>
-                <th className="px-2 py-2.5 text-center">% Disposisi</th>
+              <tr className="border-b border-slate-200 text-[9.5px] font-bold uppercase tracking-tight leading-tight">
+                <th rowSpan={2} className="px-1.5 py-2 text-center align-middle border-r border-slate-200 bg-slate-100 text-slate-700">
+                  Bulan
+                </th>
+                <th rowSpan={2} className="px-1.5 py-2 text-center align-middle border-r border-slate-200 bg-blue-50/80 text-blue-900">
+                  Panggilan<br />Masuk
+                </th>
+                <th rowSpan={2} className="px-1.5 py-2 text-center align-middle border-r border-slate-200 bg-blue-50/80 text-blue-900">
+                  Dijawab<br />Petugas
+                </th>
+                <th rowSpan={2} className="px-1.5 py-2 text-center align-middle border-r border-slate-200 bg-blue-50/80 text-blue-900">
+                  % Jawab
+                </th>
+                <th rowSpan={2} className="px-1.5 py-2 text-center align-middle border-r border-slate-200 bg-teal-50/80 text-teal-900">
+                  Rata-Rata<br />Waktu Layanan
+                </th>
+                <th rowSpan={2} className="px-1.5 py-2 text-center align-middle border-r border-slate-200 bg-teal-50/80 text-teal-900">
+                  Dijawab Petugas<br />&lt;20 Detik
+                </th>
+                <th colSpan={3} className="px-1 py-1.5 text-center align-middle border-r border-b border-slate-200 bg-amber-50 text-amber-900">
+                  Kategori
+                </th>
+                <th rowSpan={2} className="px-1 py-2 text-center align-middle border-r border-slate-200 bg-emerald-50/80 text-emerald-900">
+                  Total
+                </th>
+                <th rowSpan={2} className="px-1 py-2 text-center align-middle border-r border-slate-200 bg-emerald-50/80 text-emerald-900">
+                  Tuntas Pada<br />Layanan CC 165
+                </th>
+                <th rowSpan={2} className="px-1 py-2 text-center align-middle border-r border-slate-200 bg-emerald-50/80 text-emerald-900">
+                  % Tuntas
+                </th>
+                <th rowSpan={2} className="px-1 py-2 text-center align-middle border-r border-slate-200 bg-purple-50/80 text-purple-900">
+                  Disposisi
+                </th>
+                <th rowSpan={2} className="px-1 py-2 text-center align-middle bg-purple-50/80 text-purple-900">
+                  % Disposisi
+                </th>
+              </tr>
+              <tr className="border-b border-slate-200 text-[9px] font-bold uppercase tracking-tight leading-tight">
+                <th className="px-1 py-1 text-center align-middle border-r border-slate-200 bg-amber-50/50 text-amber-900">
+                  Informasi
+                </th>
+                <th className="px-1 py-1 text-center align-middle border-r border-slate-200 bg-amber-50/50 text-amber-900">
+                  Permintaan
+                </th>
+                <th className="px-1 py-1 text-center align-middle border-r border-slate-200 bg-amber-50/50 text-amber-900">
+                  Pengaduan
+                </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-[11px]">
+            <tbody className="divide-y divide-slate-100 text-[10px]">
               {loading && data.length === 0 ? (
                 <tr>
-                  <td colSpan={13} className="px-4 py-6 text-center text-slate-500 font-medium">Memuat data dari Google Sheets...</td>
+                  <td colSpan={14} className="px-4 py-6 text-center text-slate-500 font-medium">Memuat data dari Google Sheets...</td>
                 </tr>
               ) : filteredData.length === 0 ? (
                 <tr>
-                  <td colSpan={13} className="px-4 py-6 text-center text-slate-500 font-medium">Tidak ada data ditemukan</td>
+                  <td colSpan={14} className="px-4 py-6 text-center text-slate-500 font-medium">Tidak ada data ditemukan</td>
                 </tr>
               ) : (
                 filteredData.map((row) => {
@@ -558,19 +592,20 @@ export function VoiceDashboard({
                           : "hover:bg-slate-50/80 text-slate-700"
                       )}
                     >
-                      <td className="px-2.5 py-1.5 font-medium whitespace-nowrap text-slate-900">{row.bulan}</td>
-                      <td className="px-2 py-1.5 text-right font-medium">{new Intl.NumberFormat('id-ID').format(row.panggilanMasuk)}</td>
-                      <td className="px-2 py-1.5 text-right text-slate-700">{new Intl.NumberFormat('id-ID').format(row.panggilanDijawab)}</td>
-                      <td className="px-2 py-1.5 text-right font-semibold text-blue-600">{row.persenDijawab}</td>
-                      <td className="px-2 py-1.5 text-center text-slate-600 whitespace-nowrap">{row.rataWaktu}</td>
-                      <td className="px-2 py-1.5 text-right text-emerald-600 font-medium">{row.dijawabKurang20}</td>
-                      <td className="px-2 py-1.5 text-right">{new Intl.NumberFormat('id-ID').format(row.informasi)}</td>
-                      <td className="px-2 py-1.5 text-right">{new Intl.NumberFormat('id-ID').format(row.permintaan)}</td>
-                      <td className="px-2 py-1.5 text-right">{new Intl.NumberFormat('id-ID').format(row.pengaduan)}</td>
-                      <td className="px-2 py-1.5 text-right font-medium">{new Intl.NumberFormat('id-ID').format(row.total || row.tuntas)}</td>
-                      <td className="px-2 py-1.5 text-right font-bold text-emerald-600">{row.persenTuntas}</td>
-                      <td className="px-2 py-1.5 text-right">{new Intl.NumberFormat('id-ID').format(row.disposisi)}</td>
-                      <td className="px-2 py-1.5 text-right font-medium text-slate-600">{row.persenDisposisi}</td>
+                      <td className="px-1 py-1.5 text-center font-medium whitespace-nowrap text-slate-900">{row.bulan}</td>
+                      <td className="px-1 py-1.5 text-center font-medium">{new Intl.NumberFormat('id-ID').format(row.panggilanMasuk)}</td>
+                      <td className="px-1 py-1.5 text-center text-slate-700">{new Intl.NumberFormat('id-ID').format(row.panggilanDijawab)}</td>
+                      <td className="px-1 py-1.5 text-center font-semibold text-blue-600">{row.persenDijawab}</td>
+                      <td className="px-1 py-1.5 text-center text-slate-600 whitespace-nowrap">{row.rataWaktu}</td>
+                      <td className="px-1 py-1.5 text-center text-emerald-600 font-medium">{row.dijawabKurang20}</td>
+                      <td className="px-1 py-1.5 text-center">{new Intl.NumberFormat('id-ID').format(row.informasi)}</td>
+                      <td className="px-1 py-1.5 text-center">{new Intl.NumberFormat('id-ID').format(row.permintaan)}</td>
+                      <td className="px-1 py-1.5 text-center">{new Intl.NumberFormat('id-ID').format(row.pengaduan)}</td>
+                      <td className="px-1 py-1.5 text-center font-medium">{new Intl.NumberFormat('id-ID').format(row.total)}</td>
+                      <td className="px-1 py-1.5 text-center font-medium text-slate-800">{new Intl.NumberFormat('id-ID').format(row.tuntas)}</td>
+                      <td className="px-1 py-1.5 text-center font-bold text-emerald-600">{row.persenTuntas}</td>
+                      <td className="px-1 py-1.5 text-center">{new Intl.NumberFormat('id-ID').format(row.disposisi)}</td>
+                      <td className="px-1 py-1.5 text-center font-medium text-slate-600">{row.persenDisposisi}</td>
                     </tr>
                   );
                 })
