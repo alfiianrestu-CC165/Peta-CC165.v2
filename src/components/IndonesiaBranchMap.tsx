@@ -39,7 +39,7 @@ export function IndonesiaBranchMap({
   const [selectedRegion, setSelectedRegion] = useState<string>(initialRegionFilter);
   const [searchBranch, setSearchBranch] = useState<string>('');
   const [highlightedBranch, setHighlightedBranch] = useState<BranchOfficeData | null>(null);
-  const [mapLayer, setMapLayer] = useState<'carto' | 'osm' | 'topo'>('carto');
+  const [mapLayer, setMapLayer] = useState<'osm' | 'topo'>('osm');
 
   useEffect(() => {
     if (initialRegionFilter) {
@@ -89,11 +89,9 @@ export function IndonesiaBranchMap({
     return { mapCenter: [-2.2, 118.0] as [number, number], mapZoom: 5 };
   }, [selectedRegion, filteredBranches, highlightedBranch]);
 
-  // Tile layer URL
+  // Tile layer URL (using OpenStreetMap & OpenTopoMap so no API key is ever required)
   const tileUrl = useMemo(() => {
     switch (mapLayer) {
-      case 'carto':
-        return 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
       case 'topo':
         return 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png';
       default:
@@ -134,7 +132,7 @@ export function IndonesiaBranchMap({
                 Peta Interaktif Sebaran Pemanfaatan per Kantor Cabang
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
-                Visualisasi spasial 126 Kantor Cabang BPJS Kesehatan di 38 Provinsi se-Indonesia (Periode Jan – Jul 2026)
+                Visualisasi spasial 126 Kantor Cabang BPJS Kesehatan di 38 Provinsi se-Indonesia (Periode Jan – Sep 2026)
               </p>
             </div>
           </div>
@@ -176,15 +174,6 @@ export function IndonesiaBranchMap({
           {/* Map style toggle */}
           <div className="flex items-center p-0.5 bg-slate-200/80 rounded-lg border border-slate-300 text-[11px] font-medium">
             <button
-              onClick={() => setMapLayer('carto')}
-              className={cn(
-                "px-2.5 py-1 rounded-md transition-all cursor-pointer",
-                mapLayer === 'carto' ? "bg-white text-blue-700 font-bold shadow-2xs" : "text-slate-600 hover:text-slate-900"
-              )}
-            >
-              Terang
-            </button>
-            <button
               onClick={() => setMapLayer('osm')}
               className={cn(
                 "px-2.5 py-1 rounded-md transition-all cursor-pointer",
@@ -218,7 +207,8 @@ export function IndonesiaBranchMap({
           >
             <ChangeView center={mapCenter} zoom={mapZoom} />
             <TileLayer
-              attribution='&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+              key={mapLayer}
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url={tileUrl}
             />
 
@@ -266,13 +256,13 @@ export function IndonesiaBranchMap({
                         <div className="flex justify-between items-center text-[11px] text-slate-500 mt-1 pt-1 border-t border-slate-200/60">
                           <span>Rata-rata / Bulan:</span>
                           <span className="font-semibold text-slate-700">
-                            {new Intl.NumberFormat('id-ID').format(Math.round(branch.total / 7))}
+                            {new Intl.NumberFormat('id-ID').format(Math.round(branch.total / 9))}
                           </span>
                         </div>
                       </div>
 
                       {/* Mini Monthly Breakdown */}
-                      <div className="text-[10px] text-slate-600 grid grid-cols-4 gap-1 text-center bg-slate-100/70 p-1.5 rounded-md">
+                      <div className="text-[10px] text-slate-600 grid grid-cols-5 gap-1 text-center bg-slate-100/70 p-1.5 rounded-md">
                         <div><span className="text-slate-400 block">Jan</span>{branch.januari.toLocaleString('id-ID')}</div>
                         <div><span className="text-slate-400 block">Feb</span>{branch.februari.toLocaleString('id-ID')}</div>
                         <div><span className="text-slate-400 block">Mar</span>{branch.maret.toLocaleString('id-ID')}</div>
@@ -280,6 +270,8 @@ export function IndonesiaBranchMap({
                         <div><span className="text-slate-400 block">Mei</span>{branch.mei.toLocaleString('id-ID')}</div>
                         <div><span className="text-slate-400 block">Jun</span>{branch.juni.toLocaleString('id-ID')}</div>
                         <div><span className="text-slate-400 block">Jul</span>{branch.juli.toLocaleString('id-ID')}</div>
+                        <div><span className="text-slate-400 block">Agu</span>{branch.agustus.toLocaleString('id-ID')}</div>
+                        <div><span className="text-slate-400 block">Sep</span>{branch.september.toLocaleString('id-ID')}</div>
                         <div className="font-bold text-blue-700 bg-blue-50 rounded"><span className="text-blue-500 block font-normal">Tot</span>{branch.total.toLocaleString('id-ID')}</div>
                       </div>
                     </div>

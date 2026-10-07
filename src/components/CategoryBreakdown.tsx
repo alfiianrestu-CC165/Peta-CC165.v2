@@ -25,11 +25,11 @@ interface CategoryBreakdownProps {
 export function CategoryBreakdown({ categoryData, categoryTotals }: CategoryBreakdownProps) {
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'informasi' | 'permintaan' | 'pengaduan'>('all');
 
-  // Official Category Totals from Spreadsheet (G9, H9, I9)
-  const officialInfoTotal = categoryData.totals?.informasi || categoryTotals?.info || 852095;
-  const officialReqTotal = categoryData.totals?.permintaan || categoryTotals?.req || 116901;
-  const officialCompTotal = categoryData.totals?.pengaduan || categoryTotals?.comp || 7923;
-  const officialGrandTotal = categoryData.totals?.total || (officialInfoTotal + officialReqTotal + officialCompTotal) || 976919;
+  // Official Category Totals from Spreadsheet Traffic Call (G11, H11, I11, J11) & Topik Voice
+  const officialInfoTotal = categoryTotals?.info || categoryData.totals?.informasi || 1049892;
+  const officialReqTotal = categoryTotals?.req || categoryData.totals?.permintaan || 142859;
+  const officialCompTotal = categoryTotals?.comp || categoryData.totals?.pengaduan || 11177;
+  const officialGrandTotal = categoryTotals?.total || categoryData.totals?.total || (officialInfoTotal + officialReqTotal + officialCompTotal) || 1203928;
 
   const categories = [
     {
@@ -103,7 +103,7 @@ export function CategoryBreakdown({ categoryData, categoryTotals }: CategoryBrea
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-0.5">
-            Trend pemanfaatan kategori Informasi, Permintaan, dan Pengaduan bulan Januari sd Juli 2026
+            Trend pemanfaatan kategori Informasi, Permintaan, dan Pengaduan bulan Januari sd September 2026
           </p>
         </div>
 

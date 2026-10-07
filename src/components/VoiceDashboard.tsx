@@ -256,14 +256,9 @@ export function VoiceDashboard({
                       % Dijawab Petugas
                     </h3>
                   </div>
-                  <div className="flex items-baseline gap-2.5 mt-2 flex-wrap">
-                    <p className="text-3xl sm:text-4xl font-extrabold text-emerald-950 tracking-tight">
-                      {loading && data.length === 0 ? '...' : persenDijawab}
-                    </p>
-                    <span className="inline-flex items-center font-bold bg-emerald-100/80 text-emerald-800 px-2.5 py-0.5 rounded-full border border-emerald-200/70 text-xs">
-                      {loading && data.length === 0 ? '...' : new Intl.NumberFormat('id-ID').format(totalDijawab)}
-                    </span>
-                  </div>
+                  <p className="text-3xl sm:text-4xl font-extrabold mt-2 text-emerald-950 tracking-tight">
+                    {loading && data.length === 0 ? '...' : persenDijawab}
+                  </p>
                   <p className="text-xs text-slate-500 font-medium mt-0.5">
                     Dijawab Petugas: <span className="font-bold text-emerald-800">{loading && data.length === 0 ? '...' : new Intl.NumberFormat('id-ID').format(totalDijawab)}</span> panggilan
                   </p>
@@ -293,16 +288,11 @@ export function VoiceDashboard({
                       % Tuntas pada CC 165
                     </h3>
                   </div>
-                  <div className="flex items-baseline gap-2.5 mt-2 flex-wrap">
-                    <p className="text-3xl sm:text-4xl font-extrabold text-purple-950 tracking-tight">
-                      {loading && data.length === 0 ? '...' : rataTuntas}
-                    </p>
-                    <span className="inline-flex items-center font-bold bg-purple-100/80 text-purple-800 px-2.5 py-0.5 rounded-full border border-purple-200/70 text-xs">
-                      {loading && data.length === 0 ? '...' : new Intl.NumberFormat('id-ID').format(totalTuntas)}
-                    </span>
-                  </div>
+                  <p className="text-3xl sm:text-4xl font-extrabold mt-2 text-purple-950 tracking-tight">
+                    {loading && data.length === 0 ? '...' : rataTuntas}
+                  </p>
                   <p className="text-xs text-slate-500 font-medium mt-0.5">
-                    Tuntas pada Layanan CC 165: <span className="font-bold text-purple-800">{loading && data.length === 0 ? '...' : new Intl.NumberFormat('id-ID').format(totalTuntas)}</span>
+                    Tuntas pada Layanan CC 165: <span className="font-bold text-purple-800">{loading && data.length === 0 ? '...' : new Intl.NumberFormat('id-ID').format(totalTuntas)}</span> tiket
                   </p>
                 </div>
                 <div className="p-3 rounded-xl bg-purple-100/80 text-purple-700 border border-purple-200/60 shadow-2xs shrink-0 group-hover:scale-105 transition-transform">
@@ -332,11 +322,11 @@ export function VoiceDashboard({
                   <span>Komposisi Kategori Layanan</span>
                 </h3>
                 <p className="text-[11px] text-slate-500 mt-0.5">
-                  Distribusi pemanfaatan dari 3 kategori utama (Jan – Jul 2026)
+                  Distribusi pemanfaatan dari 3 kategori utama (Jan - Sep 2026)
                 </p>
               </div>
               <span className="text-[10px] font-bold px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full border border-blue-100/80 shrink-0">
-                Total: {new Intl.NumberFormat('id-ID').format(categoryStackedData.total || 976919)}
+                Total: {new Intl.NumberFormat('id-ID').format(categoryStackedData.total || 1203928)}
               </span>
             </div>
 
@@ -471,9 +461,17 @@ export function VoiceDashboard({
           </div>
           <div className="w-full h-56 sm:h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData} margin={{ top: 12, right: 14, left: -6, bottom: 4 }}>
+              <LineChart data={chartData} margin={{ top: 12, right: 20, left: -6, bottom: 4 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="bulan" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 500, fill: '#64748b' }} dy={6} />
+                <XAxis
+                  dataKey="bulan"
+                  interval={0}
+                  padding={{ left: 8, right: 12 }}
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 9.5, fontWeight: 500, fill: '#64748b' }}
+                  dy={6}
+                />
                 <YAxis
                   axisLine={false}
                   tickLine={false}

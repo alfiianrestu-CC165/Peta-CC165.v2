@@ -59,31 +59,31 @@ export const SEGMENT_METADATA: Record<string, { fullName: string; description: s
 // Fallback data for category breakdown if network error occurs
 const DEFAULT_CATEGORY_DATA: CategoryBreakdownData = {
   informasi: [
-    { topik: 'Perbaikan data identitas peserta (NIK, nama, tanggal lahir, jenis kelamin dan alamat)', jumlah: 156556, persen: '18,37%', persenVal: 18.37 },
-    { topik: 'Prosedur Perubahan Segmen Kepesertaan', jumlah: 125926, persen: '14,78%', persenVal: 14.78 },
-    { topik: 'Cek Tagihan/Pembayaran', jumlah: 70187, persen: '8,24%', persenVal: 8.24 },
-    { topik: 'Status Kepesertaan', jumlah: 62972, persen: '7,39%', persenVal: 7.39 },
-    { topik: 'Tata Cara Pembayaran Iuran', jumlah: 62380, persen: '7,32%', persenVal: 7.32 }
+    { topik: 'Perbaikan data identitas peserta (NIK, nama, tanggal lahir, jenis kelamin dan alamat)', jumlah: 193213, persen: '18,40%', persenVal: 18.40 },
+    { topik: 'Prosedur Perubahan Segmen Kepesertaan', jumlah: 152149, persen: '14,49%', persenVal: 14.49 },
+    { topik: 'Cek Tagihan/Pembayaran', jumlah: 86764, persen: '8,26%', persenVal: 8.26 },
+    { topik: 'Kanal Layanan', jumlah: 78984, persen: '7,52%', persenVal: 7.52 },
+    { topik: 'Tata Cara Pembayaran Iuran', jumlah: 76925, persen: '7,33%', persenVal: 7.33 }
   ],
   pengaduan: [
-    { topik: 'Aplikasi Mobile JKN sulit diakses (registrasi)', jumlah: 2270, persen: '28,65%', persenVal: 28.65 },
-    { topik: 'Gangguan antrean melalui aplikasi mobile JKN', jumlah: 1052, persen: '13,28%', persenVal: 13.28 },
-    { topik: 'Data pembayaran iuran belum masuk FTP', jumlah: 822, persen: '10,37%', persenVal: 10.37 },
-    { topik: 'Non-aktif karena Iuran dengan status pembayaran lunas', jumlah: 691, persen: '8,72%', persenVal: 8.72 },
-    { topik: 'Aplikasi Mobile JKN tidak dapat diakses (pemanfaatan fitur)', jumlah: 357, persen: '4,51%', persenVal: 4.51 }
+    { topik: 'Aplikasi Mobile JKN sulit diakses (registrasi)', jumlah: 3206, persen: '28,68%', persenVal: 28.68 },
+    { topik: 'Gangguan antrean melalui aplikasi mobile JKN', jumlah: 1772, persen: '15,85%', persenVal: 15.85 },
+    { topik: 'Data pembayaran iuran belum masuk FTP', jumlah: 880, persen: '7,87%', persenVal: 7.87 },
+    { topik: 'Non-aktif karena Iuran dengan status pembayaran lunas', jumlah: 804, persen: '7,19%', persenVal: 7.19 },
+    { topik: 'Kendala Aplikasi E Dabu', jumlah: 585, persen: '5,23%', persenVal: 5.23 }
   ],
   permintaan: [
-    { topik: 'Perubahan Identitas (No Hp)', jumlah: 32716, persen: '27,99%', persenVal: 27.99 },
-    { topik: 'Perubahan Segmen', jumlah: 22827, persen: '19,53%', persenVal: 19.53 },
-    { topik: 'Penambahan Anggota Keluarga', jumlah: 14754, persen: '12,62%', persenVal: 12.62 },
-    { topik: 'Perubahan Identitas (Email)', jumlah: 9434, persen: '8,07%', persenVal: 8.07 },
-    { topik: 'Perubahan Nama Bayi', jumlah: 8672, persen: '7,42%', persenVal: 7.42 }
+    { topik: 'Perubahan Identitas (No Hp)', jumlah: 39800, persen: '27,86%', persenVal: 27.86 },
+    { topik: 'Perubahan Segmen', jumlah: 27600, persen: '19,32%', persenVal: 19.32 },
+    { topik: 'Penambahan Anggota Keluarga', jumlah: 17622, persen: '12,34%', persenVal: 12.34 },
+    { topik: 'Perubahan Identitas (Email)', jumlah: 11451, persen: '8,02%', persenVal: 8.02 },
+    { topik: 'Perubahan Nama Bayi', jumlah: 10255, persen: '7,18%', persenVal: 7.18 }
   ],
   totals: {
-    informasi: 852095,
-    permintaan: 116901,
-    pengaduan: 7923,
-    total: 976919
+    informasi: 1049892,
+    permintaan: 142859,
+    pengaduan: 11177,
+    total: 1203928
   }
 };
 
@@ -138,10 +138,10 @@ export async function fetchCategoryBreakdown(): Promise<CategoryBreakdownData> {
     
     let currentCategory: 'informasi' | 'pengaduan' | 'permintaan' | '' = '';
     const totals = {
-      informasi: 852095,
-      permintaan: 116901,
-      pengaduan: 7923,
-      total: 976919
+      informasi: 1049892,
+      permintaan: 142859,
+      pengaduan: 11177,
+      total: 1203928
     };
 
     const result: CategoryBreakdownData = {
@@ -175,15 +175,24 @@ export async function fetchCategoryBreakdown(): Promise<CategoryBreakdownData> {
         continue;
       }
       
-      // Skip summary/total label row inside category table to prevent overriding master totals
+      // Capture summary/total row inside category table to keep category totals synced with sheet
       if (lowerCol0 === 'jumlah' || lowerCol0 === 'total') {
+        if (currentCategory && col1) {
+          const parsedCatTotal = parseInt(col1.replace(/,/g, '') || '0', 10);
+          if (parsedCatTotal > 0) {
+            totals[currentCategory] = parsedCatTotal;
+          }
+        }
         continue;
       }
 
       if (currentCategory && col0) {
         const jumlah = parseInt(col1.replace(/,/g, '') || '0', 10);
+        const rawPct = parseFloat(col2.replace('%', '').replace(',', '.'));
         const catTotal = totals[currentCategory] || 1;
-        const calcPersenVal = Number(((jumlah / catTotal) * 100).toFixed(2));
+        const calcPersenVal = !isNaN(rawPct) && rawPct > 0
+          ? Number(rawPct.toFixed(2))
+          : Number(((jumlah / catTotal) * 100).toFixed(2));
         const persenFormatted = calcPersenVal.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
         result[currentCategory].push({
           topik: col0,
@@ -194,6 +203,22 @@ export async function fetchCategoryBreakdown(): Promise<CategoryBreakdownData> {
       }
     }
     
+    // Recalculate percentages if needed based on final category totals
+    (['informasi', 'pengaduan', 'permintaan'] as const).forEach((catKey) => {
+      const catTotal = totals[catKey] || 1;
+      result[catKey] = result[catKey].map((item) => {
+        const calcPersenVal = item.persenVal > 0
+          ? item.persenVal
+          : Number(((item.jumlah / catTotal) * 100).toFixed(2));
+        const persenFormatted = calcPersenVal.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
+        return {
+          ...item,
+          persen: persenFormatted,
+          persenVal: calcPersenVal
+        };
+      });
+    });
+
     totals.total = totals.informasi + totals.permintaan + totals.pengaduan;
     result.totals = totals;
     
@@ -214,7 +239,7 @@ export async function fetchRegionalData(): Promise<RegionalData> {
     regions: [],
     branches: [],
     provinces: [],
-    totals: { januari: 0, februari: 0, maret: 0, april: 0, mei: 0, juni: 0, juli: 0, total: 0 }
+    totals: { januari: 0, februari: 0, maret: 0, april: 0, mei: 0, juni: 0, juli: 0, agustus: 0, september: 0, total: 0 }
   };
 
   try {
@@ -227,7 +252,7 @@ export async function fetchRegionalData(): Promise<RegionalData> {
     const branches: BranchOfficeData[] = [];
     const regionMap = new Map<string, RegionalSummaryItem>();
     const provinceMap = new Map<string, number>();
-    const totals = { januari: 0, februari: 0, maret: 0, april: 0, mei: 0, juni: 0, juli: 0, total: 0 };
+    const totals = { januari: 0, februari: 0, maret: 0, april: 0, mei: 0, juni: 0, juli: 0, agustus: 0, september: 0, total: 0 };
     
     // Rows usually start with Header at row 0 and row 1, data starts row 2
     for (let i = 0; i < parsed.data.length; i++) {
@@ -250,7 +275,9 @@ export async function fetchRegionalData(): Promise<RegionalData> {
       const may = parseInt((row[7] || '0').replace(/,/g, ''), 10) || 0;
       const jun = parseInt((row[8] || '0').replace(/,/g, ''), 10) || 0;
       const jul = parseInt((row[9] || '0').replace(/,/g, ''), 10) || 0;
-      const branchTotal = jan + feb + mar + apr + may + jun + jul;
+      const aug = parseInt((row[10] || '0').replace(/,/g, ''), 10) || 0;
+      const sep = parseInt((row[11] || '0').replace(/,/g, ''), 10) || 0;
+      const branchTotal = jan + feb + mar + apr + may + jun + jul + aug + sep;
       
       const branchObj: BranchOfficeData = {
         kantorCabang: kc,
@@ -263,6 +290,8 @@ export async function fetchRegionalData(): Promise<RegionalData> {
         mei: may,
         juni: jun,
         juli: jul,
+        agustus: aug,
+        september: sep,
         total: branchTotal
       };
       
@@ -275,6 +304,8 @@ export async function fetchRegionalData(): Promise<RegionalData> {
       totals.mei += may;
       totals.juni += jun;
       totals.juli += jul;
+      totals.agustus += aug;
+      totals.september += sep;
       totals.total += branchTotal;
       
       if (!regionMap.has(kw)) {
@@ -291,6 +322,8 @@ export async function fetchRegionalData(): Promise<RegionalData> {
           mei: 0,
           juni: 0,
           juli: 0,
+          agustus: 0,
+          september: 0,
           total: 0,
           percentage: 0,
           branches: []
@@ -310,6 +343,8 @@ export async function fetchRegionalData(): Promise<RegionalData> {
       reg.mei += may;
       reg.juni += jun;
       reg.juli += jul;
+      reg.agustus += aug;
+      reg.september += sep;
       reg.total += branchTotal;
       
       if (prov) {

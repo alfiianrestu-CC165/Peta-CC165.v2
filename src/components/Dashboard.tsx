@@ -29,7 +29,7 @@ export function Dashboard() {
     regions: [],
     branches: [],
     provinces: [],
-    totals: { januari: 0, februari: 0, maret: 0, april: 0, mei: 0, juni: 0, juli: 0, total: 0 }
+    totals: { januari: 0, februari: 0, maret: 0, april: 0, mei: 0, juni: 0, juli: 0, agustus: 0, september: 0, total: 0 }
   });
   const [segmentData, setSegmentData] = useState<ParticipantSegmentData>({
     segments: [],
@@ -140,10 +140,11 @@ export function Dashboard() {
 
   // Category Total & Percentage Data (100% Stacked Bar)
   const categoryStackedData = useMemo(() => {
-    const info = chartData.reduce((sum, item) => sum + (item.informasi || 0), 0);
-    const req = chartData.reduce((sum, item) => sum + (item.permintaan || 0), 0);
-    const comp = chartData.reduce((sum, item) => sum + (item.pengaduan || 0), 0);
-    const total = info + req + comp;
+    const useSummary = !searchTerm.trim() && summaryRow;
+    const info = useSummary && summaryRow.informasi ? summaryRow.informasi : chartData.reduce((sum, item) => sum + (item.informasi || 0), 0);
+    const req = useSummary && summaryRow.permintaan ? summaryRow.permintaan : chartData.reduce((sum, item) => sum + (item.permintaan || 0), 0);
+    const comp = useSummary && summaryRow.pengaduan ? summaryRow.pengaduan : chartData.reduce((sum, item) => sum + (item.pengaduan || 0), 0);
+    const total = useSummary && summaryRow.total ? summaryRow.total : (info + req + comp);
 
     if (total === 0) {
       return {

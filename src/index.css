@@ -21,4 +21,9 @@
   height: 100%;
   border-radius: 0.75rem;
   z-index: 1;
+  background-color: #f8fafc;
+}
+
+.map-tiles-light {
+  filter: brightness(1.06) contrast(0.92) saturate(0.6);
 }

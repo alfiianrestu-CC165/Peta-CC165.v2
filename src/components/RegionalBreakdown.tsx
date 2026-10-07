@@ -99,6 +99,8 @@ export function RegionalBreakdown({ regionalData, loading }: RegionalBreakdownPr
       { bulan: 'Mei', pemanfaatan: totals.mei },
       { bulan: 'Juni', pemanfaatan: totals.juni },
       { bulan: 'Juli', pemanfaatan: totals.juli },
+      { bulan: 'Agustus', pemanfaatan: totals.agustus },
+      { bulan: 'September', pemanfaatan: totals.september },
     ];
   }, [totals]);
 
@@ -151,7 +153,7 @@ export function RegionalBreakdown({ regionalData, loading }: RegionalBreakdownPr
   };
 
   const exportToCsv = () => {
-    const headers = ['No', 'Kantor Cabang', 'Kedeputian Wilayah', 'Provinsi', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Total'];
+    const headers = ['No', 'Kantor Cabang', 'Kedeputian Wilayah', 'Provinsi', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Total'];
     const rows = filteredBranches.map((b, i) => [
       i + 1,
       `"${b.kantorCabang}"`,
@@ -164,6 +166,8 @@ export function RegionalBreakdown({ regionalData, loading }: RegionalBreakdownPr
       b.mei,
       b.juni,
       b.juli,
+      b.agustus,
+      b.september,
       b.total
     ]);
     const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
@@ -198,7 +202,7 @@ export function RegionalBreakdown({ regionalData, loading }: RegionalBreakdownPr
           </div>
           <div className="mt-3 flex items-center gap-1.5 text-[11px] text-slate-500">
             <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-            Periode Januari s.d. Juli 2026
+            Periode Januari s.d. September 2026
           </div>
         </div>
 
@@ -703,6 +707,8 @@ export function RegionalBreakdown({ regionalData, loading }: RegionalBreakdownPr
                 <th className="py-2.5 px-2.5 text-right font-medium text-slate-600">Mei</th>
                 <th className="py-2.5 px-2.5 text-right font-medium text-slate-600">Jun</th>
                 <th className="py-2.5 px-2.5 text-right font-medium text-slate-600">Jul</th>
+                <th className="py-2.5 px-2.5 text-right font-medium text-slate-600">Agu</th>
+                <th className="py-2.5 px-2.5 text-right font-medium text-slate-600">Sep</th>
                 <th 
                   className="py-2.5 px-3 text-right cursor-pointer hover:bg-slate-200/60 transition-colors font-bold text-slate-900 bg-blue-50/50"
                   onClick={() => handleSort('total')}
@@ -717,7 +723,7 @@ export function RegionalBreakdown({ regionalData, loading }: RegionalBreakdownPr
             <tbody className="divide-y divide-slate-100">
               {paginatedBranches.length === 0 ? (
                 <tr>
-                  <td colSpan={12} className="py-8 text-center text-slate-400 text-xs">
+                  <td colSpan={14} className="py-8 text-center text-slate-400 text-xs">
                     Tidak ada data Kantor Cabang yang cocok dengan kriteria filter.
                   </td>
                 </tr>
@@ -763,6 +769,12 @@ export function RegionalBreakdown({ regionalData, loading }: RegionalBreakdownPr
                       </td>
                       <td className="py-2 px-2.5 text-right font-mono text-slate-600">
                         {new Intl.NumberFormat('id-ID').format(b.juli)}
+                      </td>
+                      <td className="py-2 px-2.5 text-right font-mono text-slate-600">
+                        {new Intl.NumberFormat('id-ID').format(b.agustus)}
+                      </td>
+                      <td className="py-2 px-2.5 text-right font-mono text-slate-600">
+                        {new Intl.NumberFormat('id-ID').format(b.september)}
                       </td>
                       <td className="py-2 px-3 text-right font-bold font-mono text-blue-700 bg-blue-50/30">
                         {new Intl.NumberFormat('id-ID').format(b.total)}

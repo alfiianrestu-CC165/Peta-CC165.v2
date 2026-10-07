@@ -46,6 +46,8 @@ export interface BranchOfficeData {
   mei: number;
   juni: number;
   juli: number;
+  agustus: number;
+  september: number;
   total: number;
 }
 
@@ -61,6 +63,8 @@ export interface RegionalSummaryItem {
   mei: number;
   juni: number;
   juli: number;
+  agustus: number;
+  september: number;
   total: number;
   percentage: number;
   branches: BranchOfficeData[];
@@ -78,6 +82,8 @@ export interface RegionalData {
     mei: number;
     juni: number;
     juli: number;
+    agustus: number;
+    september: number;
     total: number;
   };
 }
