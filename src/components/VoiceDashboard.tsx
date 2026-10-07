@@ -108,6 +108,18 @@ export function VoiceDashboard({
     return '00:04:01';
   }, [summaryRow]);
 
+  const totalDijawab = useMemo(() => {
+    if (summaryRow && summaryRow.panggilanDijawab) return summaryRow.panggilanDijawab;
+    const monthlyRows = data.filter(item => !(item.bulan.toLowerCase().includes('total') || item.bulan.toLowerCase().includes('rata-rata')));
+    return monthlyRows.reduce((acc, curr) => acc + (curr.panggilanDijawab || 0), 0);
+  }, [summaryRow, data]);
+
+  const totalTuntas = useMemo(() => {
+    if (summaryRow && summaryRow.tuntas) return summaryRow.tuntas;
+    const monthlyRows = data.filter(item => !(item.bulan.toLowerCase().includes('total') || item.bulan.toLowerCase().includes('rata-rata')));
+    return monthlyRows.reduce((acc, curr) => acc + (curr.tuntas || 0), 0);
+  }, [summaryRow, data]);
+
   // Data Disposisi ke KC (Kolom M9: Disposisi Kantor Cabang, Kolom N9: % Disposisi)
   const disposisiInfo = useMemo(() => {
     if (summaryRow) {
@@ -229,7 +241,7 @@ export function VoiceDashboard({
               <div className="mt-4 pt-3 border-t border-blue-100/80 flex items-center justify-between text-xs">
                 <span className="text-slate-500 text-[11px]">Periode Data</span>
                 <span className="inline-flex items-center gap-1 font-bold bg-blue-100/70 text-blue-800 px-2.5 py-0.5 rounded-full border border-blue-200/60 text-[11px]">
-                  Januari – Juli 2026
+                  Januari - September 2026
                 </span>
               </div>
             </div>
@@ -244,11 +256,16 @@ export function VoiceDashboard({
                       % Dijawab Petugas
                     </h3>
                   </div>
-                  <p className="text-3xl sm:text-4xl font-extrabold mt-2 text-emerald-950 tracking-tight">
-                    {loading && data.length === 0 ? '...' : persenDijawab}
-                  </p>
+                  <div className="flex items-baseline gap-2.5 mt-2 flex-wrap">
+                    <p className="text-3xl sm:text-4xl font-extrabold text-emerald-950 tracking-tight">
+                      {loading && data.length === 0 ? '...' : persenDijawab}
+                    </p>
+                    <span className="inline-flex items-center font-bold bg-emerald-100/80 text-emerald-800 px-2.5 py-0.5 rounded-full border border-emerald-200/70 text-xs">
+                      {loading && data.length === 0 ? '...' : new Intl.NumberFormat('id-ID').format(totalDijawab)}
+                    </span>
+                  </div>
                   <p className="text-xs text-slate-500 font-medium mt-0.5">
-                    Response rate & daya serap agen CC
+                    Dijawab Petugas: <span className="font-bold text-emerald-800">{loading && data.length === 0 ? '...' : new Intl.NumberFormat('id-ID').format(totalDijawab)}</span> panggilan
                   </p>
                 </div>
                 <div className="p-3 rounded-xl bg-emerald-100/80 text-emerald-700 border border-emerald-200/60 shadow-2xs shrink-0 group-hover:scale-105 transition-transform">
@@ -276,11 +293,16 @@ export function VoiceDashboard({
                       % Tuntas pada CC 165
                     </h3>
                   </div>
-                  <p className="text-3xl sm:text-4xl font-extrabold mt-2 text-purple-950 tracking-tight">
-                    {loading && data.length === 0 ? '...' : rataTuntas}
-                  </p>
+                  <div className="flex items-baseline gap-2.5 mt-2 flex-wrap">
+                    <p className="text-3xl sm:text-4xl font-extrabold text-purple-950 tracking-tight">
+                      {loading && data.length === 0 ? '...' : rataTuntas}
+                    </p>
+                    <span className="inline-flex items-center font-bold bg-purple-100/80 text-purple-800 px-2.5 py-0.5 rounded-full border border-purple-200/70 text-xs">
+                      {loading && data.length === 0 ? '...' : new Intl.NumberFormat('id-ID').format(totalTuntas)}
+                    </span>
+                  </div>
                   <p className="text-xs text-slate-500 font-medium mt-0.5">
-                    First Contact Resolution (FCR)
+                    Tuntas pada Layanan CC 165: <span className="font-bold text-purple-800">{loading && data.length === 0 ? '...' : new Intl.NumberFormat('id-ID').format(totalTuntas)}</span>
                   </p>
                 </div>
                 <div className="p-3 rounded-xl bg-purple-100/80 text-purple-700 border border-purple-200/60 shadow-2xs shrink-0 group-hover:scale-105 transition-transform">
@@ -552,10 +574,10 @@ export function VoiceDashboard({
                   % Tuntas
                 </th>
                 <th rowSpan={2} className="px-1 py-2 text-center align-middle border-r border-slate-200 bg-purple-50/80 text-purple-900">
-                  Disposisi
+                  Tidak Tuntas pada<br />Layanan CC 165
                 </th>
                 <th rowSpan={2} className="px-1 py-2 text-center align-middle bg-purple-50/80 text-purple-900">
-                  % Disposisi
+                  % Tidak Tuntas pada<br />Layanan CC 165
                 </th>
               </tr>
               <tr className="border-b border-slate-200 text-[9px] font-bold uppercase tracking-tight leading-tight">

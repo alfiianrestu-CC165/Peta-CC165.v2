@@ -114,8 +114,8 @@ export async function fetchSheetData(): Promise<DataRow[]> {
             total: parseInt(row['Total']?.replace(/,/g, '') || '0', 10),
             tuntas: parseInt(row['Tuntas pada Layanan CC 165']?.replace(/,/g, '') || '0', 10),
             persenTuntas: row['% Tuntas pada Layanan CC 165'] || '',
-            disposisi: parseInt(row['Disposisi Kantor Cabang']?.replace(/,/g, '') || '0', 10),
-            persenDisposisi: row['% Disposisi'] || '',
+            disposisi: parseInt((row['Tidak Tuntas pada Layanan CC 165'] || row['Disposisi Kantor Cabang'] || '0').replace(/,/g, ''), 10),
+            persenDisposisi: row['% Tidak Tuntas pada Layanan CC 165'] || row['% Disposisi'] || '',
           };
         });
         resolve(dataRows);
