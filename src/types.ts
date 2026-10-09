@@ -139,3 +139,26 @@ export interface ParticipantSegmentData {
   regionalSegments: RegionalSegmentItem[];
   grandTotal: number;
 }
+
+export interface SatisfactionSurveyRow {
+  bulan: string;
+  kecepatanPuas: number;
+  kecepatanTidakPuas: number;
+  persenKecepatan: string;
+  persenKecepatanVal: number;
+  keramahanPuas: number;
+  keramahanTidakPuas: number;
+  persenKeramahan: string;
+  persenKeramahanVal: number;
+  kebutuhanPuas: number;
+  kebutuhanTidakPuas: number;
+  persenKebutuhan: string;
+  persenKebutuhanVal: number;
+  totalSurvei: number;
+}
+
+export interface SatisfactionSurveyData {
+  monthly: SatisfactionSurveyRow[];
+  summary: SatisfactionSurveyRow;
+}
+

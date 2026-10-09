@@ -8,7 +8,9 @@ import {
   ParticipantSegmentData,
   SegmentItem,
   MonthlySegmentSummary,
-  RegionalSegmentItem
+  RegionalSegmentItem,
+  SatisfactionSurveyRow,
+  SatisfactionSurveyData
 } from '../types';
 
 export const SHEET_ID = '1MjFAlH-fl2Y5acLWgNqQcX6E7nYfEol2gi6bHHfvH0U';
@@ -16,6 +18,7 @@ const CSV_URL_MAIN = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?
 const CSV_URL_CATEGORY = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=801320162`;
 export const CSV_URL_REGIONAL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=1804505187`;
 export const CSV_URL_SEGMENT = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=695192154`;
+export const CSV_URL_SURVEY = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=survei%20kepuasan&range=A1:K12&headers=0`;
 
 // Metadata definitions for 7 segments
 export const SEGMENT_METADATA: Record<string, { fullName: string; description: string; color: string }> = {
@@ -602,6 +605,248 @@ export async function fetchParticipantSegmentData(): Promise<ParticipantSegmentD
       regionalSegments: [],
       grandTotal: 867832
     };
+  }
+}
+
+export const DEFAULT_SATISFACTION_SURVEY_DATA: SatisfactionSurveyData = {
+  monthly: [
+    {
+      bulan: 'Januari 2026',
+      kecepatanPuas: 7968,
+      kecepatanTidakPuas: 466,
+      persenKecepatan: '94,47%',
+      persenKecepatanVal: 94.47,
+      keramahanPuas: 7889,
+      keramahanTidakPuas: 545,
+      persenKeramahan: '93,54%',
+      persenKeramahanVal: 93.54,
+      kebutuhanPuas: 7359,
+      kebutuhanTidakPuas: 1075,
+      persenKebutuhan: '87,25%',
+      persenKebutuhanVal: 87.25,
+      totalSurvei: 8434,
+    },
+    {
+      bulan: 'Februari 2026',
+      kecepatanPuas: 8140,
+      kecepatanTidakPuas: 557,
+      persenKecepatan: '93,60%',
+      persenKecepatanVal: 93.60,
+      keramahanPuas: 7960,
+      keramahanTidakPuas: 737,
+      persenKeramahan: '91,53%',
+      persenKeramahanVal: 91.53,
+      kebutuhanPuas: 7504,
+      kebutuhanTidakPuas: 1193,
+      persenKebutuhan: '86,28%',
+      persenKebutuhanVal: 86.28,
+      totalSurvei: 8697,
+    },
+    {
+      bulan: 'Maret 2026',
+      kecepatanPuas: 5568,
+      kecepatanTidakPuas: 320,
+      persenKecepatan: '94,57%',
+      persenKecepatanVal: 94.57,
+      keramahanPuas: 5579,
+      keramahanTidakPuas: 309,
+      persenKeramahan: '94,75%',
+      persenKeramahanVal: 94.75,
+      kebutuhanPuas: 5248,
+      kebutuhanTidakPuas: 640,
+      persenKebutuhan: '89,13%',
+      persenKebutuhanVal: 89.13,
+      totalSurvei: 5888,
+    },
+    {
+      bulan: 'April 2026',
+      kecepatanPuas: 7085,
+      kecepatanTidakPuas: 380,
+      persenKecepatan: '94,91%',
+      persenKecepatanVal: 94.91,
+      keramahanPuas: 7046,
+      keramahanTidakPuas: 419,
+      persenKeramahan: '94,39%',
+      persenKeramahanVal: 94.39,
+      kebutuhanPuas: 6600,
+      kebutuhanTidakPuas: 865,
+      persenKebutuhan: '88,41%',
+      persenKebutuhanVal: 88.41,
+      totalSurvei: 7465,
+    },
+    {
+      bulan: 'Mei 2026',
+      kecepatanPuas: 6512,
+      kecepatanTidakPuas: 399,
+      persenKecepatan: '94,23%',
+      persenKecepatanVal: 94.23,
+      keramahanPuas: 6480,
+      keramahanTidakPuas: 431,
+      persenKeramahan: '93,76%',
+      persenKeramahanVal: 93.76,
+      kebutuhanPuas: 6007,
+      kebutuhanTidakPuas: 904,
+      persenKebutuhan: '86,92%',
+      persenKebutuhanVal: 86.92,
+      totalSurvei: 6911,
+    },
+    {
+      bulan: 'Juni 2026',
+      kecepatanPuas: 6418,
+      kecepatanTidakPuas: 377,
+      persenKecepatan: '94,45%',
+      persenKecepatanVal: 94.45,
+      keramahanPuas: 6377,
+      keramahanTidakPuas: 418,
+      persenKeramahan: '93,85%',
+      persenKeramahanVal: 93.85,
+      kebutuhanPuas: 5970,
+      kebutuhanTidakPuas: 825,
+      persenKebutuhan: '87,86%',
+      persenKebutuhanVal: 87.86,
+      totalSurvei: 6795,
+    },
+    {
+      bulan: 'Juli 2026',
+      kecepatanPuas: 6317,
+      kecepatanTidakPuas: 357,
+      persenKecepatan: '94,65%',
+      persenKecepatanVal: 94.65,
+      keramahanPuas: 6270,
+      keramahanTidakPuas: 404,
+      persenKeramahan: '93,95%',
+      persenKeramahanVal: 93.95,
+      kebutuhanPuas: 5857,
+      kebutuhanTidakPuas: 817,
+      persenKebutuhan: '87,76%',
+      persenKebutuhanVal: 87.76,
+      totalSurvei: 6674,
+    },
+    {
+      bulan: 'Agustus 2026',
+      kecepatanPuas: 6139,
+      kecepatanTidakPuas: 359,
+      persenKecepatan: '94,48%',
+      persenKecepatanVal: 94.48,
+      keramahanPuas: 6102,
+      keramahanTidakPuas: 396,
+      persenKeramahan: '93,91%',
+      persenKeramahanVal: 93.91,
+      kebutuhanPuas: 5726,
+      kebutuhanTidakPuas: 772,
+      persenKebutuhan: '88,12%',
+      persenKebutuhanVal: 88.12,
+      totalSurvei: 6498,
+    },
+    {
+      bulan: 'September 2026',
+      kecepatanPuas: 5921,
+      kecepatanTidakPuas: 371,
+      persenKecepatan: '94,10%',
+      persenKecepatanVal: 94.10,
+      keramahanPuas: 5905,
+      keramahanTidakPuas: 387,
+      persenKeramahan: '93,85%',
+      persenKeramahanVal: 93.85,
+      kebutuhanPuas: 5477,
+      kebutuhanTidakPuas: 815,
+      persenKebutuhan: '87,05%',
+      persenKebutuhanVal: 87.05,
+      totalSurvei: 6292,
+    },
+  ],
+  summary: {
+    bulan: 'Total/Rata-Rata',
+    kecepatanPuas: 60068,
+    kecepatanTidakPuas: 3586,
+    persenKecepatan: '94,37%',
+    persenKecepatanVal: 94.37,
+    keramahanPuas: 59608,
+    keramahanTidakPuas: 4046,
+    persenKeramahan: '93,64%',
+    persenKeramahanVal: 93.64,
+    kebutuhanPuas: 55748,
+    kebutuhanTidakPuas: 7906,
+    persenKebutuhan: '87,58%',
+    persenKebutuhanVal: 87.58,
+    totalSurvei: 63654,
+  }
+};
+
+export async function fetchSatisfactionSurveyData(): Promise<SatisfactionSurveyData> {
+  try {
+    const res = await fetch(CSV_URL_SURVEY);
+    if (!res.ok) return DEFAULT_SATISFACTION_SURVEY_DATA;
+
+    const csvText = await res.text();
+    const parsed = Papa.parse<string[]>(csvText, { skipEmptyLines: true });
+
+    const monthly: SatisfactionSurveyRow[] = [];
+    let summary: SatisfactionSurveyRow | null = null;
+
+    const parseNumber = (val: string) => parseInt((val || '0').replace(/[^0-9-]/g, ''), 10) || 0;
+    const parsePct = (val: string, puas: number, total: number) => {
+      const cleaned = (val || '').replace('%', '').replace(',', '.').trim();
+      const num = parseFloat(cleaned);
+      const finalVal = !isNaN(num) && num > 0 ? Number(num.toFixed(2)) : (total > 0 ? Number(((puas / total) * 100).toFixed(2)) : 0);
+      const formatted = finalVal.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
+      return { val: finalVal, formatted };
+    };
+
+    for (const row of parsed.data) {
+      if (!row || row.length < 11) continue;
+      const col0 = (row[0] || '').trim();
+      if (!col0 || col0.toLowerCase() === 'bulan') continue;
+
+      const kecepatanPuas = parseNumber(row[1]);
+      const kecepatanTidakPuas = parseNumber(row[2]);
+      const keramahanPuas = parseNumber(row[4]);
+      const keramahanTidakPuas = parseNumber(row[5]);
+      const kebutuhanPuas = parseNumber(row[7]);
+      const kebutuhanTidakPuas = parseNumber(row[8]);
+      const totalSurvei = parseNumber(row[10]) || (kecepatanPuas + kecepatanTidakPuas);
+
+      if (totalSurvei === 0 && kecepatanPuas === 0) continue;
+
+      const kecPct = parsePct(row[3], kecepatanPuas, totalSurvei);
+      const kerPct = parsePct(row[6], keramahanPuas, totalSurvei);
+      const kebPct = parsePct(row[9], kebutuhanPuas, totalSurvei);
+
+      const item: SatisfactionSurveyRow = {
+        bulan: col0,
+        kecepatanPuas,
+        kecepatanTidakPuas,
+        persenKecepatan: kecPct.formatted,
+        persenKecepatanVal: kecPct.val,
+        keramahanPuas,
+        keramahanTidakPuas,
+        persenKeramahan: kerPct.formatted,
+        persenKeramahanVal: kerPct.val,
+        kebutuhanPuas,
+        kebutuhanTidakPuas,
+        persenKebutuhan: kebPct.formatted,
+        persenKebutuhanVal: kebPct.val,
+        totalSurvei,
+      };
+
+      if (col0.toLowerCase().includes('total') || col0.toLowerCase().includes('rata')) {
+        summary = item;
+      } else {
+        monthly.push(item);
+      }
+    }
+
+    if (monthly.length === 0) {
+      return DEFAULT_SATISFACTION_SURVEY_DATA;
+    }
+
+    return {
+      monthly,
+      summary: summary || DEFAULT_SATISFACTION_SURVEY_DATA.summary,
+    };
+  } catch (error) {
+    console.warn("Could not fetch satisfaction survey data from Google Sheets, using fallback:", error);
+    return DEFAULT_SATISFACTION_SURVEY_DATA;
   }
 }
 

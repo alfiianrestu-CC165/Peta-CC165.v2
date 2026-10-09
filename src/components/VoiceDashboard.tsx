@@ -3,7 +3,8 @@ import {
   DataRow, 
   CategoryBreakdownData, 
   RegionalData, 
-  ParticipantSegmentData 
+  ParticipantSegmentData,
+  SatisfactionSurveyData
 } from '../types';
 import { 
   Database, 
@@ -21,7 +22,12 @@ import {
   Globe2,
   BarChart3,
   Layers,
-  Users
+  Users,
+  Lightbulb,
+  Target,
+  Sparkles,
+  TrendingUp,
+  Award
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -39,6 +45,7 @@ import { cn } from '../lib/utils';
 import { CategoryBreakdown } from './CategoryBreakdown';
 import { RegionalBreakdown } from './RegionalBreakdown';
 import { ParticipantSegmentBreakdown } from './ParticipantSegmentBreakdown';
+import { SatisfactionSurveySection } from './SatisfactionSurveySection';
 
 export interface LogItem {
   id: string;
@@ -71,6 +78,7 @@ export interface VoiceDashboardProps {
   setLogs: React.Dispatch<React.SetStateAction<LogItem[]>>;
   regionalData: RegionalData;
   segmentData: ParticipantSegmentData;
+  surveyData: SatisfactionSurveyData;
 }
 
 export function VoiceDashboard({
@@ -87,6 +95,7 @@ export function VoiceDashboard({
   setLogs,
   regionalData,
   segmentData,
+  surveyData,
 }: VoiceDashboardProps) {
   const [showLogs, setShowLogs] = useState(false);
   const [voiceSubTab, setVoiceSubTab] = useState<'ringkasan' | 'segmen' | 'kedeputian'>('ringkasan');
@@ -120,23 +129,23 @@ export function VoiceDashboard({
     return monthlyRows.reduce((acc, curr) => acc + (curr.tuntas || 0), 0);
   }, [summaryRow, data]);
 
-  // Data Disposisi ke KC (Kolom M9: Disposisi Kantor Cabang, Kolom N9: % Disposisi)
+  // Data Tidak Terselesaikan pada Layanan CC 165 (Kolom M11 & N11)
   const disposisiInfo = useMemo(() => {
     if (summaryRow) {
-      const persen = summaryRow.persenDisposisi ? summaryRow.persenDisposisi.trim() : '0,39%';
+      const persen = summaryRow.persenDisposisi ? summaryRow.persenDisposisi.trim() : '0,38%';
       const count = typeof summaryRow.disposisi === 'number' && !isNaN(summaryRow.disposisi)
         ? new Intl.NumberFormat('id-ID').format(summaryRow.disposisi)
-        : '3.913';
+        : '4.614';
       return `${persen} (${count} Tiket)`;
     }
     const monthlyRows = data.filter(item => !(item.bulan.toLowerCase().includes('total') || item.bulan.toLowerCase().includes('rata-rata')));
     if (monthlyRows.length > 0) {
       const totalDisposisi = monthlyRows.reduce((acc, curr) => acc + (curr.disposisi || 0), 0);
       const totalLayanan = monthlyRows.reduce((acc, curr) => acc + (curr.total || 0), 0);
-      const pct = totalLayanan > 0 ? ((totalDisposisi / totalLayanan) * 100).toFixed(2).replace('.', ',') + '%' : '0,39%';
-      return `${pct} (${new Intl.NumberFormat('id-ID').format(totalDisposisi || 3913)} Tiket)`;
+      const pct = totalLayanan > 0 ? ((totalDisposisi / totalLayanan) * 100).toFixed(2).replace('.', ',') + '%' : '0,38%';
+      return `${pct} (${new Intl.NumberFormat('id-ID').format(totalDisposisi || 4614)} Tiket)`;
     }
-    return '0,39% (3.913 Tiket)';
+    return '0,38% (4.614 Tiket)';
   }, [summaryRow, data]);
 
   // Format persentase 2 digit desimal (koma)
@@ -147,6 +156,81 @@ export function VoiceDashboard({
   const infoPctFormatted = formatPct(categoryStackedData.infoPct);
   const reqPctFormatted = formatPct(categoryStackedData.reqPct);
   const compPctFormatted = formatPct(categoryStackedData.compPct);
+
+  // Dynamic Insight & Result Metrics for Ringkasan & Kategori
+  const insightMetrics = useMemo(() => {
+    const monthlyRows = chartData.filter(
+      (item) => !(item.bulan.toLowerCase().includes('total') || item.bulan.toLowerCase().includes('rata-rata'))
+    );
+    const monthCount = monthlyRows.length || 9;
+    const avgMonthlyCalls = totalMasuk > 0 ? Math.round(totalMasuk / monthCount) : 141705;
+
+    let peakMonth = { bulan: 'Januari', panggilanMasuk: 162450 };
+    let lowestMonth = { bulan: 'Februari', panggilanMasuk: 128340 };
+
+    if (monthlyRows.length > 0) {
+      peakMonth = monthlyRows.reduce((prev, curr) =>
+        (curr.panggilanMasuk || 0) > (prev.panggilanMasuk || 0) ? curr : prev
+      , monthlyRows[0]);
+      lowestMonth = monthlyRows.reduce((prev, curr) =>
+        (curr.panggilanMasuk || 0) < (prev.panggilanMasuk || 0) ? curr : prev
+      , monthlyRows[0]);
+    }
+
+    const slaKurang20 = summaryRow?.dijawabKurang20 || '91,43%';
+    const topInfo = categoryData.informasi?.[0] || {
+      topik: 'Perbaikan data identitas peserta (NIK, nama, tanggal lahir, jenis kelamin dan alamat)',
+      jumlah: 193213,
+      persen: '18,40%',
+    };
+    const secondInfo = categoryData.informasi?.[1] || {
+      topik: 'Prosedur Perubahan Segmen Kepesertaan',
+      jumlah: 152149,
+      persen: '14,49%',
+    };
+    const topReq = categoryData.permintaan?.[0] || {
+      topik: 'Perubahan Identitas (No Hp)',
+      jumlah: 39800,
+      persen: '27,86%',
+    };
+    const secondReq = categoryData.permintaan?.[1] || {
+      topik: 'Perubahan Segmen',
+      jumlah: 27600,
+      persen: '19,32%',
+    };
+    const topComp = categoryData.pengaduan?.[0] || {
+      topik: 'Aplikasi Mobile JKN sulit diakses (registrasi)',
+      jumlah: 3206,
+      persen: '28,68%',
+    };
+    const secondComp = categoryData.pengaduan?.[1] || {
+      topik: 'Gangguan antrean melalui aplikasi mobile JKN',
+      jumlah: 1772,
+      persen: '15,85%',
+    };
+
+    const avgSurveyPct = surveyData?.summary
+      ? ((surveyData.summary.persenKecepatanVal + surveyData.summary.persenKeramahanVal + surveyData.summary.persenKebutuhanVal) / 3).toLocaleString('id-ID', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }) + '%'
+      : '91,86%';
+
+    return {
+      monthCount,
+      avgMonthlyCalls,
+      peakMonth,
+      lowestMonth,
+      slaKurang20,
+      topInfo,
+      secondInfo,
+      topReq,
+      secondReq,
+      topComp,
+      secondComp,
+      avgSurveyPct,
+    };
+  }, [chartData, totalMasuk, summaryRow, categoryData, surveyData]);
 
   return (
     <div className="space-y-4">
@@ -300,9 +384,9 @@ export function VoiceDashboard({
                 </div>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-purple-100/80 flex items-center justify-between text-xs">
-                <span className="text-slate-500 text-[11px]">Disposisi ke KC</span>
-                <span className="inline-flex items-center gap-1 font-bold bg-purple-100/70 text-purple-800 px-2.5 py-0.5 rounded-full border border-purple-200/60 text-[11px]">
+              <div className="mt-4 pt-3 border-t border-purple-100/80 flex items-center justify-between gap-2 text-xs">
+                <span className="text-slate-500 text-[11px]">Tidak Terselesaikan pada Layanan CC 165</span>
+                <span className="inline-flex items-center gap-1 font-bold bg-purple-100/70 text-purple-800 px-2.5 py-0.5 rounded-full border border-purple-200/60 text-[11px] shrink-0">
                   {loading && data.length === 0 ? '...' : disposisiInfo}
                 </span>
               </div>
@@ -459,17 +543,17 @@ export function VoiceDashboard({
               Trend Bulanan
             </span>
           </div>
-          <div className="w-full h-56 sm:h-64">
+          <div className="w-full h-64 sm:h-72 flex-1 min-h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData} margin={{ top: 12, right: 20, left: -6, bottom: 4 }}>
+              <LineChart data={chartData} margin={{ top: 14, right: 22, left: -4, bottom: 6 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis
                   dataKey="bulan"
                   interval={0}
-                  padding={{ left: 8, right: 12 }}
+                  padding={{ left: 10, right: 14 }}
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fontSize: 9.5, fontWeight: 500, fill: '#64748b' }}
+                  tick={{ fontSize: 10, fontWeight: 600, fill: '#64748b' }}
                   dy={6}
                 />
                 <YAxis
@@ -498,9 +582,9 @@ export function VoiceDashboard({
                   dataKey="panggilanMasuk"
                   name="Panggilan Masuk"
                   stroke="#2563eb"
-                  strokeWidth={4}
-                  dot={{ r: 4.5, strokeWidth: 2, stroke: '#2563eb', fill: '#ffffff' }}
-                  activeDot={{ r: 7, strokeWidth: 2, stroke: '#ffffff', fill: '#1d4ed8' }}
+                  strokeWidth={6}
+                  dot={{ r: 6, strokeWidth: 2.5, stroke: '#2563eb', fill: '#ffffff' }}
+                  activeDot={{ r: 8.5, strokeWidth: 2.5, stroke: '#ffffff', fill: '#1d4ed8' }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -632,6 +716,110 @@ export function VoiceDashboard({
               )}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      {/* Survei Kepuasan Layanan CC 165 (Kecepatan, Keramahan, Memenuhi Kebutuhan) */}
+      <SatisfactionSurveySection
+        surveyData={surveyData}
+        loading={loading}
+      />
+
+      {/* Insight & Result Section (Ringkasan & Kategori) */}
+      <div className="w-full bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 bg-blue-600 text-white rounded-lg">
+              <Sparkles size={15} />
+            </div>
+            <h3 className="font-bold text-slate-800 text-sm">
+              Insight &amp; Result — Ringkasan &amp; Kategori
+            </h3>
+          </div>
+          <span className="text-[11px] text-slate-500 font-medium">
+            Jan – Sep 2026
+          </span>
+        </div>
+
+        <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* KEY INSIGHTS */}
+          <div className="p-3.5 rounded-xl bg-amber-50/40 border border-amber-200/70">
+            <div className="flex items-center gap-2 mb-2.5 pb-2 border-b border-amber-200/60">
+              <Lightbulb size={15} className="text-amber-600 shrink-0" />
+              <h4 className="text-xs font-extrabold text-slate-800 uppercase tracking-wide">
+                Key Insights
+              </h4>
+            </div>
+            <ul className="space-y-2 text-xs text-slate-700">
+              <li className="flex items-start gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0 mt-1.5" />
+                <span>
+                  <strong>Trafik Panggilan:</strong> Total{' '}
+                  <strong className="text-slate-900">{new Intl.NumberFormat('id-ID').format(totalMasuk)}</strong> panggilan masuk (rata-rata{' '}
+                  <strong>{new Intl.NumberFormat('id-ID').format(insightMetrics.avgMonthlyCalls)}/bln</strong>); tertinggi di{' '}
+                  <strong>{insightMetrics.peakMonth.bulan}</strong> ({new Intl.NumberFormat('id-ID').format(insightMetrics.peakMonth.panggilanMasuk)}).
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0 mt-1.5" />
+                <span>
+                  <strong>Dominasi Informasi ({infoPctFormatted}%):</strong> Mayoritas interaksi berupa kebutuhan informasi, tertinggi pada{' '}
+                  <em>{insightMetrics.topInfo.topik}</em> (<strong>{insightMetrics.topInfo.persen}</strong>) &amp;{' '}
+                  <em>{insightMetrics.secondInfo.topik}</em> (<strong>{insightMetrics.secondInfo.persen}</strong>).
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0 mt-1.5" />
+                <span>
+                  <strong>Permintaan &amp; Pengaduan:</strong> Permintaan tertinggi adalah <em>{insightMetrics.topReq.topik}</em> (<strong>{insightMetrics.topReq.persen}</strong>), sedangkan pengaduan didominasi kendala <em>Mobile JKN</em> (<strong>44,53%</strong>).
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0 mt-1.5" />
+                <span>
+                  <strong>Evaluasi Kepuasan:</strong> Kecepatan (<strong>{surveyData.summary.persenKecepatan}</strong>) &amp; Keramahan (<strong>{surveyData.summary.persenKeramahan}</strong>) sangat tinggi; ruang peningkatan pada Memenuhi Kebutuhan (<strong>{surveyData.summary.persenKebutuhan}</strong>).
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          {/* KEY RESULTS */}
+          <div className="p-3.5 rounded-xl bg-emerald-50/40 border border-emerald-200/70">
+            <div className="flex items-center gap-2 mb-2.5 pb-2 border-b border-emerald-200/60">
+              <Target size={15} className="text-emerald-600 shrink-0" />
+              <h4 className="text-xs font-extrabold text-slate-800 uppercase tracking-wide">
+                Key Results
+              </h4>
+            </div>
+            <ul className="space-y-2 text-xs text-slate-700">
+              <li className="flex items-start gap-2">
+                <CheckCircle2 size={14} className="text-emerald-600 shrink-0 mt-0.5" />
+                <span>
+                  <strong>Penyelesaian Langsung ({rataTuntas}):</strong> Sebanyak{' '}
+                  <strong className="text-emerald-800">{new Intl.NumberFormat('id-ID').format(totalTuntas)} tiket</strong> tuntas di CC 165, hanya{' '}
+                  <strong>{disposisiInfo}</strong> tidak terselesaikan pada layanan CC 165.
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 size={14} className="text-emerald-600 shrink-0 mt-0.5" />
+                <span>
+                  <strong>SLA &amp; Waktu Layanan:</strong> Panggilan terjawab mencapai <strong className="text-emerald-800">{persenDijawab}</strong>, kecepatan angkat &lt;20 detik sebesar <strong>{insightMetrics.slaKurang20}</strong>, dan AHT terjaga di <strong>{avgHandleTime} menit</strong>.
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 size={14} className="text-emerald-600 shrink-0 mt-0.5" />
+                <span>
+                  <strong>Rata-Rata Kepuasan ({insightMetrics.avgSurveyPct}):</strong> Performa kepuasan layanan konsisten berada di atas <strong>91%</strong> sepanjang Jan–Sep 2026.
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 size={14} className="text-emerald-600 shrink-0 mt-0.5" />
+                <span>
+                  <strong>Tindak Lanjut Utama:</strong> Penguatan fitur mandiri di Mobile JKN/PANDAWA (perbaikan data &amp; update No HP) serta stabilitas teknis aplikasi.
+                </span>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
       </>
