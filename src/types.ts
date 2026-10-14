@@ -104,6 +104,8 @@ export interface SegmentItem {
     mei: number;
     juni: number;
     juli: number;
+    agustus: number;
+    september: number;
   };
 }
 

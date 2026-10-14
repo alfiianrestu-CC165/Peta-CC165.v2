@@ -407,7 +407,7 @@ export function getKedeputianWilayahIndex(name: string): number {
 // Fetch Participant Segment Dataset (Data Pemanfaatan Per Segmen - GID: 695192154)
 export async function fetchParticipantSegmentData(): Promise<ParticipantSegmentData> {
   const segmentKeys = ['PBI APBN', 'PBI APBD', 'PBPU', 'PPU PN', 'PPU', 'BP', 'Belum Terdaftar'];
-  const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli'];
+  const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September'];
 
   try {
     const res = await fetch(CSV_URL_SEGMENT);
@@ -416,9 +416,9 @@ export async function fetchParticipantSegmentData(): Promise<ParticipantSegmentD
     const csvText = await res.text();
     const parsed = Papa.parse<string[]>(csvText, { skipEmptyLines: true });
     
-    const segmentMonthlyTotals: Record<string, { januari: number; februari: number; maret: number; april: number; mei: number; juni: number; juli: number }> = {};
+    const segmentMonthlyTotals: Record<string, { januari: number; februari: number; maret: number; april: number; mei: number; juni: number; juli: number; agustus: number; september: number }> = {};
     segmentKeys.forEach(k => {
-      segmentMonthlyTotals[k] = { januari: 0, februari: 0, maret: 0, april: 0, mei: 0, juni: 0, juli: 0 };
+      segmentMonthlyTotals[k] = { januari: 0, februari: 0, maret: 0, april: 0, mei: 0, juni: 0, juli: 0, agustus: 0, september: 0 };
     });
 
     const monthlySummaries: MonthlySegmentSummary[] = months.map(m => ({
@@ -459,7 +459,7 @@ export async function fetchParticipantSegmentData(): Promise<ParticipantSegmentD
           percentage: 0
         };
 
-        for (let m = 0; m < 7; m++) {
+        for (let m = 0; m < 9; m++) {
           const startCol = 1 + m * 8;
           for (let s = 0; s < 7; s++) {
             const segName = segmentKeys[s];
@@ -473,9 +473,9 @@ export async function fetchParticipantSegmentData(): Promise<ParticipantSegmentD
 
       // Total row
       if (col0 === 'TOTAL') {
-        for (let m = 0; m < 7; m++) {
+        for (let m = 0; m < 9; m++) {
           const startCol = 1 + m * 8;
-          const monthKey = months[m].toLowerCase() as 'januari' | 'februari' | 'maret' | 'april' | 'mei' | 'juni' | 'juli';
+          const monthKey = months[m].toLowerCase() as 'januari' | 'februari' | 'maret' | 'april' | 'mei' | 'juni' | 'juli' | 'agustus' | 'september';
           let mTotal = 0;
           
           for (let s = 0; s < 7; s++) {
@@ -512,7 +512,7 @@ export async function fetchParticipantSegmentData(): Promise<ParticipantSegmentD
         color: '#3b82f6'
       };
       const monthly = segmentMonthlyTotals[key];
-      const total = monthly.januari + monthly.februari + monthly.maret + monthly.april + monthly.mei + monthly.juni + monthly.juli;
+      const total = monthly.januari + monthly.februari + monthly.maret + monthly.april + monthly.mei + monthly.juni + monthly.juli + monthly.agustus + monthly.september;
       const percentage = grandTotal > 0 ? (total / grandTotal) * 100 : 0;
 
       return {
@@ -534,7 +534,7 @@ export async function fetchParticipantSegmentData(): Promise<ParticipantSegmentD
     };
   } catch (error) {
     console.warn("Could not fetch participant segment data from Google Sheets:", error);
-    // Return standard fallback based on actual sheet data
+    // Return standard fallback based on actual sheet data up to September 2026
     return {
       segments: [
         {
@@ -542,68 +542,91 @@ export async function fetchParticipantSegmentData(): Promise<ParticipantSegmentD
           fullName: SEGMENT_METADATA['PBPU'].fullName,
           description: SEGMENT_METADATA['PBPU'].description,
           color: SEGMENT_METADATA['PBPU'].color,
-          total: 316929,
-          percentage: 36.52,
-          monthly: { januari: 58915, februari: 55600, maret: 40684, april: 42624, mei: 39005, juni: 40449, juli: 39652 }
+          total: 391275,
+          percentage: 36.72,
+          monthly: { januari: 58915, februari: 55600, maret: 40684, april: 42624, mei: 39005, juni: 40449, juli: 39652, agustus: 36308, september: 38038 }
         },
         {
           segmentName: 'PPU',
           fullName: SEGMENT_METADATA['PPU'].fullName,
           description: SEGMENT_METADATA['PPU'].description,
           color: SEGMENT_METADATA['PPU'].color,
-          total: 219153,
-          percentage: 25.25,
-          monthly: { januari: 40034, februari: 33644, maret: 28158, april: 30428, mei: 29379, juni: 30225, juli: 27285 }
+          total: 274019,
+          percentage: 25.72,
+          monthly: { januari: 40034, februari: 33644, maret: 28158, april: 30428, mei: 29379, juni: 30225, juli: 27285, agustus: 26933, september: 27933 }
         },
         {
           segmentName: 'PBI APBN',
           fullName: SEGMENT_METADATA['PBI APBN'].fullName,
           description: SEGMENT_METADATA['PBI APBN'].description,
           color: SEGMENT_METADATA['PBI APBN'].color,
-          total: 147854,
-          percentage: 17.04,
-          monthly: { januari: 22407, februari: 37876, maret: 17278, april: 19160, mei: 19078, juni: 17886, juli: 14169 }
+          total: 174940,
+          percentage: 16.42,
+          monthly: { januari: 22407, februari: 37876, maret: 17278, april: 19160, mei: 19078, juni: 17886, juli: 14169, agustus: 13377, september: 13709 }
         },
         {
           segmentName: 'PBI APBD',
           fullName: SEGMENT_METADATA['PBI APBD'].fullName,
           description: SEGMENT_METADATA['PBI APBD'].description,
           color: SEGMENT_METADATA['PBI APBD'].color,
-          total: 99161,
-          percentage: 11.43,
-          monthly: { januari: 20432, februari: 16524, maret: 11599, april: 13877, mei: 12988, juni: 11526, juli: 12215 }
+          total: 122604,
+          percentage: 11.51,
+          monthly: { januari: 20432, februari: 16524, maret: 11599, april: 13877, mei: 12988, juni: 11526, juli: 12215, agustus: 11493, september: 11950 }
         },
         {
           segmentName: 'PPU PN',
           fullName: SEGMENT_METADATA['PPU PN'].fullName,
           description: SEGMENT_METADATA['PPU PN'].description,
           color: SEGMENT_METADATA['PPU PN'].color,
-          total: 59294,
-          percentage: 6.83,
-          monthly: { januari: 13906, februari: 11048, maret: 6699, april: 7716, mei: 6938, juni: 6812, juli: 6175 }
+          total: 70506,
+          percentage: 6.62,
+          monthly: { januari: 13906, februari: 11048, maret: 6699, april: 7716, mei: 6938, juni: 6812, juli: 6175, agustus: 5671, september: 5541 }
         },
         {
           segmentName: 'BP',
           fullName: SEGMENT_METADATA['BP'].fullName,
           description: SEGMENT_METADATA['BP'].description,
           color: SEGMENT_METADATA['BP'].color,
-          total: 14834,
-          percentage: 1.71,
-          monthly: { januari: 2163, februari: 1748, maret: 1909, april: 2267, mei: 2177, juni: 2494, juli: 2076 }
+          total: 19174,
+          percentage: 1.80,
+          monthly: { januari: 2163, februari: 1748, maret: 1909, april: 2267, mei: 2177, juni: 2494, juli: 2076, agustus: 2125, september: 2215 }
         },
         {
           segmentName: 'Belum Terdaftar',
           fullName: SEGMENT_METADATA['Belum Terdaftar'].fullName,
           description: SEGMENT_METADATA['Belum Terdaftar'].description,
           color: SEGMENT_METADATA['Belum Terdaftar'].color,
-          total: 10607,
-          percentage: 1.22,
-          monthly: { januari: 2392, februari: 1985, maret: 1199, april: 1426, mei: 1470, juni: 716, juli: 1419 }
+          total: 12942,
+          percentage: 1.21,
+          monthly: { januari: 2392, februari: 1985, maret: 1199, april: 1426, mei: 1470, juni: 716, juli: 1419, agustus: 1200, september: 1135 }
         }
       ],
-      monthlyData: [],
-      regionalSegments: [],
-      grandTotal: 867832
+      monthlyData: [
+        { bulan: 'Januari', 'PBI APBN': 22407, 'PBI APBD': 20432, 'PBPU': 58915, 'PPU PN': 13906, 'PPU': 40034, 'BP': 2163, 'Belum Terdaftar': 2392, total: 160249 },
+        { bulan: 'Februari', 'PBI APBN': 37876, 'PBI APBD': 16524, 'PBPU': 55600, 'PPU PN': 11048, 'PPU': 33644, 'BP': 1748, 'Belum Terdaftar': 1985, total: 158425 },
+        { bulan: 'Maret', 'PBI APBN': 17278, 'PBI APBD': 11599, 'PBPU': 40684, 'PPU PN': 6699, 'PPU': 28158, 'BP': 1909, 'Belum Terdaftar': 1199, total: 107526 },
+        { bulan: 'April', 'PBI APBN': 19160, 'PBI APBD': 13877, 'PBPU': 42624, 'PPU PN': 7716, 'PPU': 30428, 'BP': 2267, 'Belum Terdaftar': 1426, total: 117498 },
+        { bulan: 'Mei', 'PBI APBN': 19078, 'PBI APBD': 12988, 'PBPU': 39005, 'PPU PN': 6938, 'PPU': 29379, 'BP': 2177, 'Belum Terdaftar': 1470, total: 111035 },
+        { bulan: 'Juni', 'PBI APBN': 17886, 'PBI APBD': 11526, 'PBPU': 40449, 'PPU PN': 6812, 'PPU': 30225, 'BP': 2494, 'Belum Terdaftar': 716, total: 110108 },
+        { bulan: 'Juli', 'PBI APBN': 14169, 'PBI APBD': 12215, 'PBPU': 39652, 'PPU PN': 6175, 'PPU': 27285, 'BP': 2076, 'Belum Terdaftar': 1419, total: 102991 },
+        { bulan: 'Agustus', 'PBI APBN': 13377, 'PBI APBD': 11493, 'PBPU': 36308, 'PPU PN': 5671, 'PPU': 26933, 'BP': 2125, 'Belum Terdaftar': 1200, total: 97107 },
+        { bulan: 'September', 'PBI APBN': 13709, 'PBI APBD': 11950, 'PBPU': 38038, 'PPU PN': 5541, 'PPU': 27933, 'BP': 2215, 'Belum Terdaftar': 1135, total: 100521 }
+      ],
+      regionalSegments: [
+        { kedeputianWilayah: 'KEDEPUTIAN WILAYAH I', romanId: 'I', 'PBI APBN': 6080, 'PBI APBD': 5297, 'PBPU': 13386, 'PPU PN': 4137, 'PPU': 7861, 'BP': 948, 'Belum Terdaftar': 1124, total: 38833, percentage: 3.64 },
+        { kedeputianWilayah: 'KEDEPUTIAN WILAYAH II', romanId: 'II', 'PBI APBN': 8401, 'PBI APBD': 6122, 'PBPU': 19367, 'PPU PN': 4237, 'PPU': 12618, 'BP': 841, 'Belum Terdaftar': 886, total: 52472, percentage: 4.92 },
+        { kedeputianWilayah: 'KEDEPUTIAN WILAYAH III', romanId: 'III', 'PBI APBN': 14290, 'PBI APBD': 7584, 'PBPU': 18239, 'PPU PN': 5044, 'PPU': 9518, 'BP': 1097, 'Belum Terdaftar': 266, total: 56038, percentage: 5.26 },
+        { kedeputianWilayah: 'KEDEPUTIAN WILAYAH IV', romanId: 'IV', 'PBI APBN': 29053, 'PBI APBD': 32345, 'PBPU': 82266, 'PPU PN': 12592, 'PPU': 75807, 'BP': 4088, 'Belum Terdaftar': 1816, total: 237967, percentage: 22.33 },
+        { kedeputianWilayah: 'KEDEPUTIAN WILAYAH V', romanId: 'V', 'PBI APBN': 47459, 'PBI APBD': 31055, 'PBPU': 117284, 'PPU PN': 14499, 'PPU': 79681, 'BP': 4651, 'Belum Terdaftar': 902, total: 295531, percentage: 27.74 },
+        { kedeputianWilayah: 'KEDEPUTIAN WILAYAH VI', romanId: 'VI', 'PBI APBN': 33244, 'PBI APBD': 14088, 'PBPU': 71499, 'PPU PN': 12427, 'PPU': 39242, 'BP': 3389, 'Belum Terdaftar': 7426, total: 181315, percentage: 17.02 },
+        { kedeputianWilayah: 'KEDEPUTIAN WILAYAH VII', romanId: 'VII', 'PBI APBN': 22671, 'PBI APBD': 14774, 'PBPU': 38669, 'PPU PN': 6681, 'PPU': 25425, 'BP': 2213, 'Belum Terdaftar': 290, total: 110723, percentage: 10.39 },
+        { kedeputianWilayah: 'KEDEPUTIAN WILAYAH VIII', romanId: 'VIII', 'PBI APBN': 4150, 'PBI APBD': 4197, 'PBPU': 7293, 'PPU PN': 2364, 'PPU': 7317, 'BP': 366, 'Belum Terdaftar': 47, total: 25734, percentage: 2.42 },
+        { kedeputianWilayah: 'KEDEPUTIAN WILAYAH IX', romanId: 'IX', 'PBI APBN': 4203, 'PBI APBD': 3262, 'PBPU': 8448, 'PPU PN': 3325, 'PPU': 4869, 'BP': 768, 'Belum Terdaftar': 57, total: 24932, percentage: 2.34 },
+        { kedeputianWilayah: 'KEDEPUTIAN WILAYAH X', romanId: 'X', 'PBI APBN': 1578, 'PBI APBD': 1258, 'PBPU': 4323, 'PPU PN': 2044, 'PPU': 3053, 'BP': 249, 'Belum Terdaftar': 20, total: 12525, percentage: 1.18 },
+        { kedeputianWilayah: 'KEDEPUTIAN WILAYAH XI', romanId: 'XI', 'PBI APBN': 2937, 'PBI APBD': 2427, 'PBPU': 9413, 'PPU PN': 2324, 'PPU': 7812, 'BP': 474, 'Belum Terdaftar': 92, total: 25479, percentage: 2.39 },
+        { kedeputianWilayah: 'KEDEPUTIAN WILAYAH XII', romanId: 'XII', 'PBI APBN': 874, 'PBI APBD': 195, 'PBPU': 1088, 'PPU PN': 832, 'PPU': 816, 'BP': 90, 'Belum Terdaftar': 16, total: 3911, percentage: 0.37 }
+      ],
+      grandTotal: 1065460
     };
   }
 }

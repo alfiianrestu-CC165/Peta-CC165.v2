@@ -10,6 +10,7 @@ import {
   MessagesSquare, 
   Bell, 
   Award,
+  Sparkles,
   Clock
 } from 'lucide-react';
 import { cn } from '../lib/utils';
@@ -200,26 +201,34 @@ export function Dashboard() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden">
         
-        {/* Header */}
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-8 shrink-0">
-          <div className="relative w-full max-w-md hidden sm:block">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-            <input
-              type="text"
-              placeholder="Cari berdasarkan bulan..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-slate-100 border-transparent focus:bg-white focus:border-blue-600 rounded-lg text-sm transition-all outline-none focus:ring-1 focus:ring-blue-600"
+        {/* Header with Official Logos */}
+        <header className="h-16 sm:h-20 bg-white border-b border-slate-200/90 flex items-center justify-between px-4 sm:px-8 shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.03)] z-10">
+          {/* Official Brand Identity: BPJS Kesehatan */}
+          <div className="flex items-center py-1">
+            <img
+              src="/images/logo-bpjs-kesehatan.svg"
+              alt="BPJS Kesehatan"
+              className="h-7 sm:h-9 w-auto max-w-[150px] sm:max-w-[210px] object-contain select-none"
+              referrerPolicy="no-referrer"
             />
           </div>
-          <div className="sm:hidden font-bold text-blue-600 flex items-center gap-2">
-            <Database size={20} /> SheetSync
-          </div>
 
-          <div className="flex items-center gap-4">
-            <div className="relative cursor-pointer p-2 hover:bg-slate-100 rounded-lg transition-colors">
-              {notification && <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>}
-              <Bell className="w-5 h-5 text-slate-500" />
+          {/* Right Header Controls: Search & Notification */}
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="relative w-44 sm:w-64 md:w-72 hidden sm:block">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={17} />
+              <input
+                type="text"
+                placeholder="Cari berdasarkan bulan..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-9 pr-3 py-1.5 sm:py-2 bg-slate-100 hover:bg-slate-100/90 border border-transparent focus:border-blue-600 focus:bg-white rounded-lg text-xs sm:text-sm transition-all outline-none focus:ring-1 focus:ring-blue-600"
+              />
+            </div>
+
+            <div className="relative cursor-pointer p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-500 hover:text-slate-700">
+              {notification && <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>}
+              <Bell className="w-5 h-5" />
             </div>
           </div>
         </header>
@@ -232,9 +241,11 @@ export function Dashboard() {
              <div>
                <div className="flex flex-wrap items-center gap-3">
                  <h1 className="text-2xl font-bold tracking-tight text-slate-800">PETA Care Center 165</h1>
-                 <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 text-white rounded-lg shadow-sm shadow-blue-500/20 border border-blue-500/30">
-                   <Award size={14} className="text-amber-300" />
-                   <span className="text-xs font-semibold tracking-wide uppercase">Executive Summary Report</span>
+                 <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-900 rounded-full border border-amber-400/30 shadow-sm shadow-slate-900/10 transition-all">
+                   <Sparkles size={11} className="text-amber-400 shrink-0" />
+                   <span className="text-[10.5px] font-semibold tracking-[0.15em] uppercase bg-gradient-to-r from-amber-200 via-amber-100 to-amber-200 bg-clip-text text-transparent">
+                     Executive Summary Report
+                   </span>
                  </div>
                </div>
                <div className="flex flex-wrap items-center gap-2 mt-1">

@@ -127,7 +127,7 @@ export function ParticipantSegmentBreakdown({ segmentData }: ParticipantSegmentB
                 </span>
               </div>
               <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-                Rincian interaksi peserta berdasarkan jenis kepesertaan JKN (Januari – Juli 2026)
+                Rincian interaksi peserta berdasarkan jenis kepesertaan JKN (Januari – September 2026)
               </p>
             </div>
           </div>
@@ -288,7 +288,7 @@ export function ParticipantSegmentBreakdown({ segmentData }: ParticipantSegmentB
                             </span>
                           </div>
                           <span className="text-[10px] text-slate-400 block mt-0.5">
-                            rata-rata {(seg.total / 7).toLocaleString('id-ID', { maximumFractionDigits: 0 })} / bln
+                            rata-rata {(seg.total / (monthlyData.length || 9)).toLocaleString('id-ID', { maximumFractionDigits: 0 })} / bln
                           </span>
                         </div>
                       </div>
@@ -411,7 +411,16 @@ export function ParticipantSegmentBreakdown({ segmentData }: ParticipantSegmentB
                     <div>
                       <h5 className="text-xs font-bold text-blue-900">Insight Segmen Utama</h5>
                       <p className="text-xs text-blue-800 mt-1 leading-relaxed">
-                        Segmen <strong>PBPU (Peserta Mandiri)</strong> menjadi kelompok pemanfaat terbanyak dengan <strong>316.929 pemanfaatan (36,5%)</strong>, diikuti oleh <strong>PPU (Pekerja Swasta/BUMN)</strong> sebesar <strong>219.153 pemanfaatan (25,3%)</strong>. Bersama-sama, kedua kelompok pekerja ini menyumbang lebih dari <strong>61,8%</strong> dari total seluruh panggilan ke CC 165.
+                        Segmen <strong>PBPU (Peserta Mandiri)</strong> menjadi kelompok pemanfaat terbanyak dengan{' '}
+                        <strong>
+                          {new Intl.NumberFormat('id-ID').format(segments.find(s => s.segmentName === 'PBPU')?.total || 391275)} pemanfaatan ({((segments.find(s => s.segmentName === 'PBPU')?.percentage || 36.7)).toFixed(1)}%)
+                        </strong>, diikuti oleh <strong>PPU (Pekerja Swasta/BUMN)</strong> sebesar{' '}
+                        <strong>
+                          {new Intl.NumberFormat('id-ID').format(segments.find(s => s.segmentName === 'PPU')?.total || 274019)} pemanfaatan ({((segments.find(s => s.segmentName === 'PPU')?.percentage || 25.7)).toFixed(1)}%)
+                        </strong>. Bersama-sama, kedua kelompok pekerja ini menyumbang lebih dari{' '}
+                        <strong>
+                          {(((segments.find(s => s.segmentName === 'PBPU')?.percentage || 36.7) + (segments.find(s => s.segmentName === 'PPU')?.percentage || 25.7))).toFixed(1)}%
+                        </strong> dari total seluruh panggilan ke CC 165.
                       </p>
                     </div>
                   </div>
@@ -426,7 +435,7 @@ export function ParticipantSegmentBreakdown({ segmentData }: ParticipantSegmentB
           <div className="space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <h4 className="text-sm font-bold text-slate-800">Tren Pemanfaatan Segmen per Bulan (Jan – Jul 2026)</h4>
+                <h4 className="text-sm font-bold text-slate-800">Tren Pemanfaatan Segmen per Bulan (Januari – September 2026)</h4>
                 <p className="text-xs text-slate-500">Visualisasi komposisi pemanfaatan 7 segmen peserta per bulan dalam bentuk Stacked Bar Chart</p>
               </div>
               <div className="flex items-center gap-2">
@@ -500,7 +509,7 @@ export function ParticipantSegmentBreakdown({ segmentData }: ParticipantSegmentB
             <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-2xs">
               <div className="px-4 py-3 border-b border-slate-200 bg-slate-50/70 flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-800">Tabel Data Pemanfaatan per Bulan</span>
-                <span className="text-[11px] text-slate-500 font-medium">Januari – Juli 2026</span>
+                <span className="text-[11px] text-slate-500 font-medium">Januari – September 2026</span>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-xs text-left">
@@ -665,13 +674,13 @@ export function ParticipantSegmentBreakdown({ segmentData }: ParticipantSegmentB
               <tfoot>
                 <tr className="bg-slate-100/90 font-extrabold text-slate-900 border-t-2 border-slate-300">
                   <td className="py-3 px-3">TOTAL NASIONAL</td>
-                  <td className="py-3 px-2 text-right text-emerald-700">{new Intl.NumberFormat('id-ID').format(147854)}</td>
-                  <td className="py-3 px-2 text-right text-amber-700">{new Intl.NumberFormat('id-ID').format(99161)}</td>
-                  <td className="py-3 px-2 text-right text-blue-700 bg-blue-100/50">{new Intl.NumberFormat('id-ID').format(316929)}</td>
-                  <td className="py-3 px-2 text-right text-purple-700">{new Intl.NumberFormat('id-ID').format(59294)}</td>
-                  <td className="py-3 px-2 text-right text-teal-700 bg-teal-100/50">{new Intl.NumberFormat('id-ID').format(219153)}</td>
-                  <td className="py-3 px-2 text-right text-orange-700">{new Intl.NumberFormat('id-ID').format(14834)}</td>
-                  <td className="py-3 px-2 text-right text-slate-600">{new Intl.NumberFormat('id-ID').format(10607)}</td>
+                  <td className="py-3 px-2 text-right text-emerald-700">{new Intl.NumberFormat('id-ID').format(segments.find(s => s.segmentName === 'PBI APBN')?.total || 0)}</td>
+                  <td className="py-3 px-2 text-right text-amber-700">{new Intl.NumberFormat('id-ID').format(segments.find(s => s.segmentName === 'PBI APBD')?.total || 0)}</td>
+                  <td className="py-3 px-2 text-right text-blue-700 bg-blue-100/50">{new Intl.NumberFormat('id-ID').format(segments.find(s => s.segmentName === 'PBPU')?.total || 0)}</td>
+                  <td className="py-3 px-2 text-right text-purple-700">{new Intl.NumberFormat('id-ID').format(segments.find(s => s.segmentName === 'PPU PN')?.total || 0)}</td>
+                  <td className="py-3 px-2 text-right text-teal-700 bg-teal-100/50">{new Intl.NumberFormat('id-ID').format(segments.find(s => s.segmentName === 'PPU')?.total || 0)}</td>
+                  <td className="py-3 px-2 text-right text-orange-700">{new Intl.NumberFormat('id-ID').format(segments.find(s => s.segmentName === 'BP')?.total || 0)}</td>
+                  <td className="py-3 px-2 text-right text-slate-600">{new Intl.NumberFormat('id-ID').format(segments.find(s => s.segmentName === 'Belum Terdaftar')?.total || 0)}</td>
                   <td className="py-3 px-3 text-right text-blue-900 bg-blue-100/70 text-sm">
                     {new Intl.NumberFormat('id-ID').format(grandTotal)}
                   </td>
