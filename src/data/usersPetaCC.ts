@@ -3,10 +3,8 @@
  * Sumber: Spreadsheet Google Sheet "User PETA CC"
  * URL: https://docs.google.com/spreadsheets/d/1MjFAlH-fl2Y5acLWgNqQcX6E7nYfEol2gi6bHHfvH0U/edit?usp=sharing
  * 
- * Mencakup baris A4:E6 (Level User):
- * - SPI0011 / 8711ZR (Satuan Pengawasan Internal - Kode 0011)
- * - SESBAN0012 / 1077CX (Sekretaris Badan - Kode 0012)
- * - SESDEWAS0013 / 4321AL (Sekretaris Dewan Pengawas - Kode 0013)
+ * Mencakup pembaruan baris A28:E39 (Kedeputian Wilayah I - XII, Level User):
+ * - KW0100 s/d KW1200
  */
 
 export type UserLevel = 'Administrator' | 'User';
@@ -206,84 +204,84 @@ export const USERS_PETA_CC: UserPetaCC[] = [
     "unitKerja": "Kedeputian Wilayah I",
     "kode": "0100",
     "level": "User",
-    "username": "KC0100",
+    "username": "KW0100",
     "password": "8001GP"
   },
   {
     "unitKerja": "Kedeputian Wilayah II",
     "kode": "0200",
     "level": "User",
-    "username": "KC0200",
+    "username": "KW0200",
     "password": "7557KS"
   },
   {
     "unitKerja": "Kedeputian Wilayah III",
     "kode": "0300",
     "level": "User",
-    "username": "KC0300",
+    "username": "KW0300",
     "password": "9485UX"
   },
   {
     "unitKerja": "Kedeputian Wilayah IV",
     "kode": "0400",
     "level": "User",
-    "username": "KC0400",
+    "username": "KW0400",
     "password": "6319FC"
   },
   {
     "unitKerja": "Kedeputian Wilayah V",
     "kode": "0500",
     "level": "User",
-    "username": "KC0500",
+    "username": "KW0500",
     "password": "6728EI"
   },
   {
     "unitKerja": "Kedeputian Wilayah VI",
     "kode": "0600",
     "level": "User",
-    "username": "KC0600",
+    "username": "KW0600",
     "password": "7558EN"
   },
   {
     "unitKerja": "Kedeputian Wilayah VII",
     "kode": "0700",
     "level": "User",
-    "username": "KC0700",
+    "username": "KW0700",
     "password": "5914HD"
   },
   {
     "unitKerja": "Kedeputian Wilayah VIII",
     "kode": "0800",
     "level": "User",
-    "username": "KC0800",
+    "username": "KW0800",
     "password": "4120RK"
   },
   {
     "unitKerja": "Kedeputian Wilayah IX",
     "kode": "0900",
     "level": "User",
-    "username": "KC0900",
+    "username": "KW0900",
     "password": "4534BA"
   },
   {
     "unitKerja": "Kedeputian Wilayah X",
     "kode": "1000",
     "level": "User",
-    "username": "KC1000",
+    "username": "KW1000",
     "password": "3442FS"
   },
   {
     "unitKerja": "Kedeputian Wilayah XI",
     "kode": "1100",
     "level": "User",
-    "username": "KC1100",
+    "username": "KW1100",
     "password": "6023GF"
   },
   {
     "unitKerja": "Kedeputian Wilayah XII",
     "kode": "1200",
     "level": "User",
-    "username": "KC1200",
+    "username": "KW1200",
     "password": "1104GU"
   },
   {
@@ -1171,6 +1169,96 @@ export const USERS_PETA_CC: UserPetaCC[] = [
 ];
 
 export const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1MjFAlH-fl2Y5acLWgNqQcX6E7nYfEol2gi6bHHfvH0U/edit?usp=sharing';
+
+/**
+ * Akun Khusus Baris A28:E39 (Kedeputian Wilayah I s/d XII - Level User)
+ */
+export const USER_A28_E39: UserPetaCC[] = [
+  {
+    "unitKerja": "Kedeputian Wilayah I",
+    "kode": "0100",
+    "level": "User",
+    "username": "KW0100",
+    "password": "8001GP"
+  },
+  {
+    "unitKerja": "Kedeputian Wilayah II",
+    "kode": "0200",
+    "level": "User",
+    "username": "KW0200",
+    "password": "7557KS"
+  },
+  {
+    "unitKerja": "Kedeputian Wilayah III",
+    "kode": "0300",
+    "level": "User",
+    "username": "KW0300",
+    "password": "9485UX"
+  },
+  {
+    "unitKerja": "Kedeputian Wilayah IV",
+    "kode": "0400",
+    "level": "User",
+    "username": "KW0400",
+    "password": "6319FC"
+  },
+  {
+    "unitKerja": "Kedeputian Wilayah V",
+    "kode": "0500",
+    "level": "User",
+    "username": "KW0500",
+    "password": "6728EI"
+  },
+  {
+    "unitKerja": "Kedeputian Wilayah VI",
+    "kode": "0600",
+    "level": "User",
+    "username": "KW0600",
+    "password": "7558EN"
+  },
+  {
+    "unitKerja": "Kedeputian Wilayah VII",
+    "kode": "0700",
+    "level": "User",
+    "username": "KW0700",
+    "password": "5914HD"
+  },
+  {
+    "unitKerja": "Kedeputian Wilayah VIII",
+    "kode": "0800",
+    "level": "User",
+    "username": "KW0800",
+    "password": "4120RK"
+  },
+  {
+    "unitKerja": "Kedeputian Wilayah IX",
+    "kode": "0900",
+    "level": "User",
+    "username": "KW0900",
+    "password": "4534BA"
+  },
+  {
+    "unitKerja": "Kedeputian Wilayah X",
+    "kode": "1000",
+    "level": "User",
+    "username": "KW1000",
+    "password": "3442FS"
+  },
+  {
+    "unitKerja": "Kedeputian Wilayah XI",
+    "kode": "1100",
+    "level": "User",
+    "username": "KW1100",
+    "password": "6023GF"
+  },
+  {
+    "unitKerja": "Kedeputian Wilayah XII",
+    "kode": "1200",
+    "level": "User",
+    "username": "KW1200",
+    "password": "1104GU"
+  }
+];
 
 /**
  * Akun Khusus Baris A4:E6 (Level User)
