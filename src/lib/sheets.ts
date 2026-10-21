@@ -10,7 +10,12 @@ import {
   MonthlySegmentSummary,
   RegionalSegmentItem,
   SatisfactionSurveyRow,
-  SatisfactionSurveyData
+  SatisfactionSurveyData,
+  MonthlySocialMediaRow,
+  SocialMediaChannelSummary,
+  SocialMediaData,
+  SocialMediaTopicItem,
+  SocialMediaTopicsData
 } from '../types';
 
 export const SHEET_ID = '1MjFAlH-fl2Y5acLWgNqQcX6E7nYfEol2gi6bHHfvH0U';
@@ -19,6 +24,8 @@ const CSV_URL_CATEGORY = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/exp
 export const CSV_URL_REGIONAL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=1804505187`;
 export const CSV_URL_SEGMENT = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=695192154`;
 export const CSV_URL_SURVEY = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=survei%20kepuasan&range=A1:K12&headers=0`;
+export const GVIZ_URL_SOCIAL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Data%20Pemanfaatan%20Media%20Sosial`;
+export const GVIZ_URL_SOCIAL_TOPICS = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Topik%20medsos`;
 
 // Metadata definitions for 7 segments
 export const SEGMENT_METADATA: Record<string, { fullName: string; description: string; color: string }> = {
@@ -870,6 +877,451 @@ export async function fetchSatisfactionSurveyData(): Promise<SatisfactionSurveyD
   } catch (error) {
     console.warn("Could not fetch satisfaction survey data from Google Sheets, using fallback:", error);
     return DEFAULT_SATISFACTION_SURVEY_DATA;
+  }
+}
+
+export const DEFAULT_SOCIAL_MEDIA_DATA: SocialMediaData = {
+  monthly: [
+    {
+      bulan: "Januari 2026",
+      facebook: 5609,
+      instagram: 31723,
+      x: 2620,
+      tiktok: 1488,
+      threads: 0,
+      email: 204,
+      youtube: 59,
+      whatsapp: 2621,
+      jumlah: 44324,
+      responTime: "0:03:07",
+      responTimeSeconds: 187,
+      vikaStatusKepesertaan: 43871,
+      vikaTagihanIuran: 9814,
+      vikaTotal: 53685
+    },
+    {
+      bulan: "Februari 2026",
+      facebook: 9368,
+      instagram: 43570,
+      x: 2455,
+      tiktok: 1615,
+      threads: 0,
+      email: 334,
+      youtube: 131,
+      whatsapp: 3982,
+      jumlah: 61455,
+      responTime: "0:19:18",
+      responTimeSeconds: 1158,
+      vikaStatusKepesertaan: 61175,
+      vikaTagihanIuran: 10889,
+      vikaTotal: 72064
+    },
+    {
+      bulan: "Maret 2026",
+      facebook: 3505,
+      instagram: 22986,
+      x: 1951,
+      tiktok: 1102,
+      threads: 0,
+      email: 221,
+      youtube: 80,
+      whatsapp: 2300,
+      jumlah: 32145,
+      responTime: "0:05:51",
+      responTimeSeconds: 351,
+      vikaStatusKepesertaan: 28302,
+      vikaTagihanIuran: 7404,
+      vikaTotal: 35706
+    },
+    {
+      bulan: "April 2026",
+      facebook: 5481,
+      instagram: 30458,
+      x: 1885,
+      tiktok: 1885,
+      threads: 0,
+      email: 318,
+      youtube: 81,
+      whatsapp: 1855,
+      jumlah: 41963,
+      responTime: "0:04:08",
+      responTimeSeconds: 248,
+      vikaStatusKepesertaan: 26587,
+      vikaTagihanIuran: 6952,
+      vikaTotal: 33539
+    },
+    {
+      bulan: "Mei 2026",
+      facebook: 5264,
+      instagram: 29137,
+      x: 2113,
+      tiktok: 1910,
+      threads: 0,
+      email: 342,
+      youtube: 78,
+      whatsapp: 1764,
+      jumlah: 40608,
+      responTime: "0:09:39",
+      responTimeSeconds: 579,
+      vikaStatusKepesertaan: 26744,
+      vikaTagihanIuran: 6092,
+      vikaTotal: 32836
+    },
+    {
+      bulan: "Juni 2026",
+      facebook: 4053,
+      instagram: 27383,
+      x: 1964,
+      tiktok: 1515,
+      threads: 301,
+      email: 348,
+      youtube: 68,
+      whatsapp: 1796,
+      jumlah: 37428,
+      responTime: "0:04:36",
+      responTimeSeconds: 276,
+      vikaStatusKepesertaan: 22467,
+      vikaTagihanIuran: 5983,
+      vikaTotal: 28450
+    },
+    {
+      bulan: "Juli 2026",
+      facebook: 3448,
+      instagram: 27568,
+      x: 1639,
+      tiktok: 1324,
+      threads: 116,
+      email: 401,
+      youtube: 83,
+      whatsapp: 1537,
+      jumlah: 36116,
+      responTime: "0:05:21",
+      responTimeSeconds: 321,
+      vikaStatusKepesertaan: 21200,
+      vikaTagihanIuran: 5704,
+      vikaTotal: 26904
+    },
+    {
+      bulan: "Agustus 2026",
+      facebook: 3085,
+      instagram: 25100,
+      x: 1623,
+      tiktok: 1231,
+      threads: 656,
+      email: 341,
+      youtube: 128,
+      whatsapp: 1410,
+      jumlah: 33574,
+      responTime: "0:03:10",
+      responTimeSeconds: 190,
+      vikaStatusKepesertaan: 20965,
+      vikaTagihanIuran: 5358,
+      vikaTotal: 26323
+    },
+    {
+      bulan: "September 2026",
+      facebook: 3301,
+      instagram: 23034,
+      x: 1708,
+      tiktok: 1310,
+      threads: 752,
+      email: 276,
+      youtube: 55,
+      whatsapp: 1342,
+      jumlah: 31778,
+      responTime: "0:04:02",
+      responTimeSeconds: 242,
+      vikaStatusKepesertaan: 22047,
+      vikaTagihanIuran: 5617,
+      vikaTotal: 27664
+    }
+  ],
+  totals: {
+    facebook: 43114,
+    instagram: 260959,
+    x: 17958,
+    tiktok: 13380,
+    threads: 1825,
+    email: 2785,
+    youtube: 763,
+    whatsapp: 18607,
+    jumlah: 359391,
+    avgResponTime: "0:06:35",
+    avgResponTimeSeconds: 395,
+    vikaStatusKepesertaan: 273358,
+    vikaTagihanIuran: 63813,
+    vikaTotal: 337171,
+    grandTotalDigital: 696562
+  },
+  percentages: {
+    instagram: "72.61%",
+    facebook: "12.00%",
+    whatsapp: "5.18%",
+    x: "5.00%",
+    tiktok: "3.72%",
+    email: "0.77%",
+    threads: "0.51%",
+    youtube: "0.21%",
+    vikaStatusKepesertaan: "81.07%",
+    vikaTagihanIuran: "18.93%"
+  },
+  channelSummary: [
+    { name: 'Instagram', key: 'instagram', count: 260959, pct: '72.61%', pctVal: 72.61, color: '#e1306c' },
+    { name: 'Facebook', key: 'facebook', count: 43114, pct: '12.00%', pctVal: 12.00, color: '#1877f2' },
+    { name: 'WhatsApp', key: 'whatsapp', count: 18607, pct: '5.18%', pctVal: 5.18, color: '#25d366' },
+    { name: 'X (Twitter)', key: 'x', count: 17958, pct: '5.00%', pctVal: 5.00, color: '#0f172a' },
+    { name: 'TikTok', key: 'tiktok', count: 13380, pct: '3.72%', pctVal: 3.72, color: '#000000' },
+    { name: 'Email', key: 'email', count: 2785, pct: '0.77%', pctVal: 0.77, color: '#ea4335' },
+    { name: 'Threads', key: 'threads', count: 1825, pct: '0.51%', pctVal: 0.51, color: '#6366f1' },
+    { name: 'YouTube', key: 'youtube', count: 763, pct: '0.21%', pctVal: 0.21, color: '#ff0000' }
+  ],
+  topics: {
+    informasi: [
+      { rank: 1, topik: 'Kanal Layanan', jumlah: 39014, formattedJumlah: '39.014', persen: '16,05%', persenVal: 16.05 },
+      { rank: 2, topik: 'Status Kepesertaan', jumlah: 31139, formattedJumlah: '31.139', persen: '12,81%', persenVal: 12.81 },
+      { rank: 3, topik: 'Prosedur Perubahan Segmen Kepesertaan', jumlah: 23394, formattedJumlah: '23.394', persen: '9,63%', persenVal: 9.63 },
+      { rank: 4, topik: 'Tata Cara Pembayaran Iuran', jumlah: 16249, formattedJumlah: '16.249', persen: '6,69%', persenVal: 6.69 },
+      { rank: 5, topik: 'Perbaikan data identitas peserta (NIK, nama, tanggal lahir, jenis kelamin dan alamat)', jumlah: 14178, formattedJumlah: '14.178', persen: '5,83%', persenVal: 5.83 }
+    ],
+    pengaduan: [
+      { rank: 1, topik: 'Aplikasi Mobile JKN sulit diakses (registrasi)', jumlah: 2249, formattedJumlah: '2.249', persen: '40,62%', persenVal: 40.62 },
+      { rank: 2, topik: 'Non-aktif karena Iuran dengan status pembayaran lunas', jumlah: 406, formattedJumlah: '406', persen: '7,33%', persenVal: 7.33 },
+      { rank: 3, topik: 'Gangguan antrean melalui aplikasi mobile JKN', jumlah: 392, formattedJumlah: '392', persen: '7,08%', persenVal: 7.08 },
+      { rank: 4, topik: 'Data pembayaran iuran belum masuk FTP', jumlah: 245, formattedJumlah: '245', persen: '4,42%', persenVal: 4.42 },
+      { rank: 5, topik: 'Obat tidak tersedia dan pasien diminta mencari obat sendiri', jumlah: 241, formattedJumlah: '241', persen: '4,35%', persenVal: 4.35 }
+    ]
+  }
+};
+
+export const DEFAULT_SOCIAL_MEDIA_TOPICS: SocialMediaTopicsData = DEFAULT_SOCIAL_MEDIA_DATA.topics!;
+
+export async function fetchSocialMediaTopics(): Promise<SocialMediaTopicsData> {
+  try {
+    const response = await fetch(GVIZ_URL_SOCIAL_TOPICS);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const text = await response.text();
+    const match = text.match(/google\.visualization\.Query\.setResponse\((.*)\);/s);
+    if (!match || !match[1]) throw new Error('Format respon sheet tidak valid');
+    const data = JSON.parse(match[1]);
+    const rows = data.table?.rows || [];
+    if (rows.length === 0) return DEFAULT_SOCIAL_MEDIA_TOPICS;
+
+    const infoList: SocialMediaTopicItem[] = [];
+    const pengaduanList: SocialMediaTopicItem[] = [];
+    let currentCategory: 'informasi' | 'pengaduan' = 'informasi';
+
+    for (const r of rows) {
+      const c = r.c || [];
+      const col0 = c[0]?.v ? String(c[0].v).trim() : '';
+      if (!col0) continue;
+
+      if (col0.toLowerCase().includes('pengaduan')) {
+        currentCategory = 'pengaduan';
+        continue;
+      }
+      if (col0.toLowerCase().includes('informasi')) {
+        currentCategory = 'informasi';
+        continue;
+      }
+
+      let rawVal = c[1]?.v;
+      let jumlah = 0;
+      if (typeof rawVal === 'number') {
+        if (rawVal > 0 && rawVal < 100 && String(c[1]?.f || '').includes('.')) {
+          jumlah = Math.round(rawVal * 1000);
+        } else {
+          jumlah = Math.round(rawVal);
+        }
+      } else if (typeof rawVal === 'string') {
+        jumlah = parseInt(rawVal.replace(/\./g, '').replace(/,/g, ''), 10) || 0;
+      }
+
+      const persenStr = c[2]?.v ? String(c[2].v).trim() : (c[2]?.f ? String(c[2].f).trim() : '');
+      const persenClean = persenStr.replace('%', '').replace(',', '.').trim();
+      const persenVal = parseFloat(persenClean) || 0;
+
+      const item: SocialMediaTopicItem = {
+        rank: (currentCategory === 'informasi' ? infoList.length : pengaduanList.length) + 1,
+        topik: col0,
+        jumlah,
+        formattedJumlah: new Intl.NumberFormat('id-ID').format(jumlah),
+        persen: persenStr.includes('%') ? persenStr : `${persenStr}%`,
+        persenVal
+      };
+
+      if (currentCategory === 'informasi') {
+        infoList.push(item);
+      } else {
+        pengaduanList.push(item);
+      }
+    }
+
+    return {
+      informasi: infoList.length > 0 ? infoList.slice(0, 5) : DEFAULT_SOCIAL_MEDIA_TOPICS.informasi,
+      pengaduan: pengaduanList.length > 0 ? pengaduanList.slice(0, 5) : DEFAULT_SOCIAL_MEDIA_TOPICS.pengaduan
+    };
+  } catch (err) {
+    console.warn("Could not fetch topics from Google Sheet, using fallback:", err);
+    return DEFAULT_SOCIAL_MEDIA_TOPICS;
+  }
+}
+
+function parseTimeToSeconds(timeStr: string): number {
+  if (!timeStr) return 0;
+  const parts = timeStr.trim().split(':');
+  if (parts.length === 3) {
+    const h = parseInt(parts[0], 10) || 0;
+    const m = parseInt(parts[1], 10) || 0;
+    const s = parseInt(parts[2], 10) || 0;
+    return h * 3600 + m * 60 + s;
+  }
+  if (parts.length === 2) {
+    const m = parseInt(parts[0], 10) || 0;
+    const s = parseInt(parts[1], 10) || 0;
+    return m * 60 + s;
+  }
+  return 0;
+}
+
+export async function fetchSocialMediaData(): Promise<SocialMediaData> {
+  try {
+    const [response, topics] = await Promise.all([
+      fetch(GVIZ_URL_SOCIAL),
+      fetchSocialMediaTopics().catch(() => DEFAULT_SOCIAL_MEDIA_TOPICS)
+    ]);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const text = await response.text();
+    const match = text.match(/google\.visualization\.Query\.setResponse\((.*)\);/s);
+    if (!match || !match[1]) throw new Error('Format respon Google Sheet tidak valid');
+
+    const data = JSON.parse(match[1]);
+    const rows = data.table?.rows || [];
+    if (rows.length === 0) return { ...DEFAULT_SOCIAL_MEDIA_DATA, topics };
+
+    const monthly: MonthlySocialMediaRow[] = [];
+    let totalsRow: any = null;
+
+    for (const r of rows) {
+      const c = r.c || [];
+      const monthLabel = c[0]?.v ? String(c[0].v).trim() : '';
+      if (!monthLabel) continue;
+
+      if (monthLabel.toLowerCase().includes('total') || monthLabel.toLowerCase().includes('rata')) {
+        totalsRow = c;
+        continue;
+      }
+      if (monthLabel === '%') {
+        continue;
+      }
+
+      const fb = Math.round(Number(c[1]?.v) || 0);
+      const ig = Math.round(Number(c[2]?.v) || 0);
+      const xVal = Math.round(Number(c[3]?.v) || 0);
+      const tiktok = Math.round(Number(c[4]?.v) || 0);
+      const threads = Math.round(Number(c[5]?.v) || 0);
+      const email = Math.round(Number(c[6]?.v) || 0);
+      const youtube = Math.round(Number(c[7]?.v) || 0);
+      const wa = Math.round(Number(c[8]?.v) || 0);
+      const totalMedsos = Math.round(Number(c[9]?.v) || (fb + ig + xVal + tiktok + threads + email + youtube + wa));
+      const responTimeStr = c[10]?.f || '0:00:00';
+      const responTimeSeconds = parseTimeToSeconds(responTimeStr);
+
+      const vikaStatus = Math.round(Number(c[13]?.v) || 0);
+      const vikaTagihan = Math.round(Number(c[14]?.v) || 0);
+      const vikaTotal = Math.round(Number(c[15]?.v) || (vikaStatus + vikaTagihan));
+
+      monthly.push({
+        bulan: monthLabel,
+        facebook: fb,
+        instagram: ig,
+        x: xVal,
+        tiktok,
+        threads,
+        email,
+        youtube,
+        whatsapp: wa,
+        jumlah: totalMedsos,
+        responTime: responTimeStr,
+        responTimeSeconds,
+        vikaStatusKepesertaan: vikaStatus,
+        vikaTagihanIuran: vikaTagihan,
+        vikaTotal: vikaTotal
+      });
+    }
+
+    if (monthly.length === 0) {
+      return DEFAULT_SOCIAL_MEDIA_DATA;
+    }
+
+    // Compute or read totals
+    const totalFb = totalsRow ? Math.round(Number(totalsRow[1]?.v) || 0) : monthly.reduce((s, m) => s + m.facebook, 0);
+    const totalIg = totalsRow ? Math.round(Number(totalsRow[2]?.v) || 0) : monthly.reduce((s, m) => s + m.instagram, 0);
+    const totalX = totalsRow ? Math.round(Number(totalsRow[3]?.v) || 0) : monthly.reduce((s, m) => s + m.x, 0);
+    const totalTiktok = totalsRow ? Math.round(Number(totalsRow[4]?.v) || 0) : monthly.reduce((s, m) => s + m.tiktok, 0);
+    const totalThreads = totalsRow ? Math.round(Number(totalsRow[5]?.v) || 0) : monthly.reduce((s, m) => s + m.threads, 0);
+    const totalEmail = totalsRow ? Math.round(Number(totalsRow[6]?.v) || 0) : monthly.reduce((s, m) => s + m.email, 0);
+    const totalYoutube = totalsRow ? Math.round(Number(totalsRow[7]?.v) || 0) : monthly.reduce((s, m) => s + m.youtube, 0);
+    const totalWa = totalsRow ? Math.round(Number(totalsRow[8]?.v) || 0) : monthly.reduce((s, m) => s + m.whatsapp, 0);
+    const totalMedsos = totalsRow ? Math.round(Number(totalsRow[9]?.v) || 0) : (totalFb + totalIg + totalX + totalTiktok + totalThreads + totalEmail + totalYoutube + totalWa);
+
+    const avgResponTime = totalsRow && totalsRow[10]?.f ? totalsRow[10].f : '0:06:35';
+    const avgResponTimeSeconds = parseTimeToSeconds(avgResponTime);
+
+    const totalVikaStatus = totalsRow ? Math.round(Number(totalsRow[13]?.v) || 0) : monthly.reduce((s, m) => s + m.vikaStatusKepesertaan, 0);
+    const totalVikaTagihan = totalsRow ? Math.round(Number(totalsRow[14]?.v) || 0) : monthly.reduce((s, m) => s + m.vikaTagihanIuran, 0);
+    const totalVika = totalsRow ? Math.round(Number(totalsRow[15]?.v) || 0) : (totalVikaStatus + totalVikaTagihan);
+
+    const calcPct = (val: number, tot: number) => tot > 0 ? ((val / tot) * 100).toFixed(2) + '%' : '0.00%';
+    const calcPctVal = (val: number, tot: number) => tot > 0 ? Number(((val / tot) * 100).toFixed(2)) : 0;
+
+    const channelSummary: SocialMediaChannelSummary[] = [
+      { name: 'Instagram', key: 'instagram', count: totalIg, pct: calcPct(totalIg, totalMedsos), pctVal: calcPctVal(totalIg, totalMedsos), color: '#e1306c' },
+      { name: 'Facebook', key: 'facebook', count: totalFb, pct: calcPct(totalFb, totalMedsos), pctVal: calcPctVal(totalFb, totalMedsos), color: '#1877f2' },
+      { name: 'WhatsApp', key: 'whatsapp', count: totalWa, pct: calcPct(totalWa, totalMedsos), pctVal: calcPctVal(totalWa, totalMedsos), color: '#25d366' },
+      { name: 'X (Twitter)', key: 'x', count: totalX, pct: calcPct(totalX, totalMedsos), pctVal: calcPctVal(totalX, totalMedsos), color: '#0f172a' },
+      { name: 'TikTok', key: 'tiktok', count: totalTiktok, pct: calcPct(totalTiktok, totalMedsos), pctVal: calcPctVal(totalTiktok, totalMedsos), color: '#000000' },
+      { name: 'Email', key: 'email', count: totalEmail, pct: calcPct(totalEmail, totalMedsos), pctVal: calcPctVal(totalEmail, totalMedsos), color: '#ea4335' },
+      { name: 'Threads', key: 'threads', count: totalThreads, pct: calcPct(totalThreads, totalMedsos), pctVal: calcPctVal(totalThreads, totalMedsos), color: '#6366f1' },
+      { name: 'YouTube', key: 'youtube', count: totalYoutube, pct: calcPct(totalYoutube, totalMedsos), pctVal: calcPctVal(totalYoutube, totalMedsos), color: '#ff0000' },
+    ];
+
+    return {
+      monthly,
+      totals: {
+        facebook: totalFb,
+        instagram: totalIg,
+        x: totalX,
+        tiktok: totalTiktok,
+        threads: totalThreads,
+        email: totalEmail,
+        youtube: totalYoutube,
+        whatsapp: totalWa,
+        jumlah: totalMedsos,
+        avgResponTime,
+        avgResponTimeSeconds,
+        vikaStatusKepesertaan: totalVikaStatus,
+        vikaTagihanIuran: totalVikaTagihan,
+        vikaTotal: totalVika,
+        grandTotalDigital: totalMedsos + totalVika
+      },
+      percentages: {
+        instagram: calcPct(totalIg, totalMedsos),
+        facebook: calcPct(totalFb, totalMedsos),
+        whatsapp: calcPct(totalWa, totalMedsos),
+        x: calcPct(totalX, totalMedsos),
+        tiktok: calcPct(totalTiktok, totalMedsos),
+        email: calcPct(totalEmail, totalMedsos),
+        threads: calcPct(totalThreads, totalMedsos),
+        youtube: calcPct(totalYoutube, totalMedsos),
+        vikaStatusKepesertaan: calcPct(totalVikaStatus, totalVika),
+        vikaTagihanIuran: calcPct(totalVikaTagihan, totalVika)
+      },
+      channelSummary,
+      topics
+    };
+  } catch (error) {
+    console.warn("Could not fetch social media data from Google Sheets, using fallback:", error);
+    return DEFAULT_SOCIAL_MEDIA_DATA;
   }
 }
 

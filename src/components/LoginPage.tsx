@@ -90,9 +90,7 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
 
         onLoginSuccess(userObj, rememberMe);
       } else {
-        setError(
-          'Username atau password salah. Pastikan kredensial sesuai data pada sheet "User PETA CC".'
-        );
+        setError('Username atau password salah');
         setIsLoading(false);
       }
     }, 350);

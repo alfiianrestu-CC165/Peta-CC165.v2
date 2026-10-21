@@ -551,7 +551,7 @@ export const USERS_PETA_CC: UserPetaCC[] = [
     "password": "1984CC"
   },
   {
-    "unitKerja": "Kabupaten Administrasi Kepulauan Seribu",
+    "unitKerja": "Cabang Tangerang",
     "kode": "1003",
     "level": "User",
     "username": "KC1003",

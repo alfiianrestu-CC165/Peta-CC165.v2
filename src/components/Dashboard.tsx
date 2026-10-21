@@ -1,6 +1,15 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { DataRow, CategoryBreakdownData, RegionalData, ParticipantSegmentData, SatisfactionSurveyData } from '../types';
-import { fetchSheetData, fetchCategoryBreakdown, fetchRegionalData, fetchParticipantSegmentData, fetchSatisfactionSurveyData, DEFAULT_SATISFACTION_SURVEY_DATA } from '../lib/sheets';
+import { DataRow, CategoryBreakdownData, RegionalData, ParticipantSegmentData, SatisfactionSurveyData, SocialMediaData } from '../types';
+import { 
+  fetchSheetData, 
+  fetchCategoryBreakdown, 
+  fetchRegionalData, 
+  fetchParticipantSegmentData, 
+  fetchSatisfactionSurveyData, 
+  DEFAULT_SATISFACTION_SURVEY_DATA,
+  fetchSocialMediaData,
+  DEFAULT_SOCIAL_MEDIA_DATA
+} from '../lib/sheets';
 import { 
   RefreshCw, 
   Search, 
@@ -14,8 +23,9 @@ import {
   Clock,
   LogOut,
   ShieldCheck,
-  Users,
-  Building2
+  Building2,
+  ExternalLink,
+  Activity
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -50,6 +60,7 @@ export function Dashboard({ user, onLogout }: DashboardProps = {}) {
     grandTotal: 0
   });
   const [surveyData, setSurveyData] = useState<SatisfactionSurveyData>(DEFAULT_SATISFACTION_SURVEY_DATA);
+  const [socialData, setSocialData] = useState<SocialMediaData>(DEFAULT_SOCIAL_MEDIA_DATA);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [notification, setNotification] = useState<string | null>(null);
@@ -72,35 +83,41 @@ export function Dashboard({ user, onLogout }: DashboardProps = {}) {
 
   const handleRefreshSocial = async () => {
     setSocialRefreshing(true);
-    setNotification('Memperbarui data kanal media sosial & WhatsApp...');
-    addLog('Medsos Refresh', 'Memulai sinkronisasi metrik kanal media sosial & live feed.', 'info');
+    setNotification('Memperbarui data Media Sosial & VIKA dari sheet "Data Pemanfaatan Media Sosial"...');
+    addLog('Medsos Refresh', 'Memulai sinkronisasi metrik kanal media sosial & VIKA dari Google Sheets.', 'info');
     
-    setTimeout(() => {
+    try {
+      const freshSocData = await fetchSocialMediaData();
+      setSocialData(freshSocData);
+      setNotification('Data Media Sosial & VIKA berhasil disinkronkan dari spreadsheet.');
+      addLog('Medsos Sync', 'Semua kanal interaksi medsos (Instagram, FB, WA, X, TikTok, dll) & VIKA tersinkronisasi.', 'success');
+    } catch (err: any) {
+      addLog('Medsos Error', err?.message || 'Gagal memuat data live medsos, menggunakan data tersimpan.', 'warning');
+    } finally {
       setSocialRefreshing(false);
-      setNotification('Data Media Sosial & WhatsApp berhasil diperbarui.');
-      addLog('Medsos Sync', 'Semua kanal interaksi (WhatsApp, IG, X, FB, YouTube) tersinkronisasi.', 'success');
       setTimeout(() => setNotification(null), 4000);
-    }, 600);
+    }
   };
 
   const loadData = async (isPolling = false) => {
     try {
       if (!isPolling) setLoading(true);
       setError(null);
-      const [rows, catBreakdown, regData, segData, survData] = await Promise.all([
+      const [rows, catBreakdown, regData, segData, survData, socData] = await Promise.all([
         fetchSheetData(),
         fetchCategoryBreakdown(),
         fetchRegionalData(),
         fetchParticipantSegmentData(),
-        fetchSatisfactionSurveyData()
+        fetchSatisfactionSurveyData(),
+        fetchSocialMediaData()
       ]);
       
-      const newDataString = JSON.stringify({ rows, catBreakdown, regData, segData, survData });
+      const newDataString = JSON.stringify({ rows, catBreakdown, regData, segData, survData, socData });
       
       // On first load, just set data, don't notify unless we had previous data
       if (previousDataRef.current === '') {
          previousDataRef.current = newDataString;
-         addLog('Data Loaded', `${rows.length} data bulanan, Survei Kepuasan, 7 Segmen Peserta, & 12 Kedeputian Wilayah dimuat dari Google Sheets.`, 'success');
+         addLog('Data Loaded', `${rows.length} data bulanan, Survei Kepuasan, 7 Segmen, & Media Sosial/VIKA dimuat dari Google Sheets.`, 'success');
       } else if (isPolling && previousDataRef.current !== newDataString) {
         setNotification('Data terbaru telah disinkronkan dari Google Sheets.');
         addLog('Sync Successful', 'Perubahan terbaru dari Google Sheets diperbarui secara otomatis.', 'success');
@@ -113,6 +130,7 @@ export function Dashboard({ user, onLogout }: DashboardProps = {}) {
       setRegionalData(regData);
       setSegmentData(segData);
       setSurveyData(survData);
+      setSocialData(socData);
     } catch (err: any) {
       if (!isPolling) {
         setError(err.message || 'Gagal memuat data dari Google Sheets');
@@ -243,18 +261,6 @@ export function Dashboard({ user, onLogout }: DashboardProps = {}) {
               <Bell className="w-5 h-5" />
             </div>
 
-            {/* Administrator Directory Button (Only for Administrator level) */}
-            {user?.level === 'Administrator' && (
-              <button
-                onClick={() => setIsUserModalOpen(true)}
-                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-50 hover:bg-amber-100/90 text-amber-900 border border-amber-300 transition-all cursor-pointer shadow-2xs"
-                title="Kelola data akun pengguna PETA CC"
-              >
-                <Users size={14} className="text-amber-600" />
-                <span className="hidden md:inline">Direktori Pengguna</span>
-              </button>
-            )}
-
             {/* Logged in User indicator */}
             {user && (
               <div className="flex items-center gap-2 pl-2 sm:pl-3 border-l border-slate-200">
@@ -282,10 +288,16 @@ export function Dashboard({ user, onLogout }: DashboardProps = {}) {
                 {user.level === 'Administrator' ? (
                   <button
                     onClick={() => setIsUserModalOpen(true)}
-                    className="h-8 w-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-white font-bold text-xs flex items-center justify-center border border-amber-300 shadow-2xs cursor-pointer hover:ring-2 hover:ring-amber-400/50 transition-all"
-                    title="Buka Direktori Pengguna (Administrator)"
+                    className="group relative flex items-center gap-2 pl-2 pr-2.5 py-1 rounded-full bg-gradient-to-r from-amber-100/90 to-amber-50 hover:from-amber-200 hover:to-amber-100 border border-amber-300 hover:border-amber-400 shadow-2xs hover:shadow-xs transition-all cursor-pointer"
+                    title="Klik untuk membuka Direktori Pengguna (Administrator)"
                   >
-                    <ShieldCheck size={16} />
+                    <div className="h-7 w-7 rounded-full bg-gradient-to-br from-amber-500 to-amber-600 text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0">
+                      <ShieldCheck size={15} />
+                    </div>
+                    <span className="text-[11px] font-bold text-amber-900 group-hover:text-amber-950 flex items-center gap-1.5 whitespace-nowrap">
+                      <span>Direktori Pengguna</span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                    </span>
                   </button>
                 ) : (
                   <div 
@@ -398,6 +410,25 @@ export function Dashboard({ user, onLogout }: DashboardProps = {}) {
                  <RefreshCw size={16} className={cn(isCurrentTabRefreshing && "animate-spin text-blue-600")} />
                  <span>Refresh Data</span>
                </button>
+
+               {/* Direct Link Live Report on Voice Menu */}
+               {activeTab === 'voice' && (
+                 <a
+                   href="https://bpjskscc.jasnita.co.id/wallboard-voice"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   className="flex items-center gap-1.5 sm:gap-2 px-3.5 py-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 text-xs sm:text-sm font-bold border border-red-200 transition-all cursor-pointer shadow-2xs group"
+                   title="Buka Wallboard Live Report Voice CC 165"
+                 >
+                   <span className="relative flex h-2 w-2">
+                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                     <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                   </span>
+                   <Activity size={15} className="text-red-600" />
+                   <span>live report</span>
+                   <ExternalLink size={13} className="text-red-400 group-hover:text-red-600 transition-colors" />
+                 </a>
+               )}
              </div>
           </div>
 
@@ -444,18 +475,20 @@ export function Dashboard({ user, onLogout }: DashboardProps = {}) {
               surveyData={surveyData}
             />
           ) : (
-            <SocialMediaDashboard searchTerm={searchTerm} />
+            <SocialMediaDashboard searchTerm={searchTerm} socialData={socialData} />
           )}
 
         </div>
       </main>
 
       {/* Administrator User Management Directory Modal */}
-      <UserManagementModal
-        isOpen={isUserModalOpen}
-        onClose={() => setIsUserModalOpen(false)}
-        currentUser={user || undefined}
-      />
+      {user?.level === 'Administrator' && (
+        <UserManagementModal
+          isOpen={isUserModalOpen}
+          onClose={() => setIsUserModalOpen(false)}
+          currentUser={user || undefined}
+        />
+      )}
     </div>
   );
 }

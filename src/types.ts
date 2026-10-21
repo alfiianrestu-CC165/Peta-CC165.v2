@@ -164,3 +164,80 @@ export interface SatisfactionSurveyData {
   summary: SatisfactionSurveyRow;
 }
 
+export interface MonthlySocialMediaRow {
+  bulan: string;
+  facebook: number;
+  instagram: number;
+  x: number;
+  tiktok: number;
+  threads: number;
+  email: number;
+  youtube: number;
+  whatsapp: number;
+  jumlah: number;
+  responTime: string;
+  responTimeSeconds: number;
+  vikaStatusKepesertaan: number;
+  vikaTagihanIuran: number;
+  vikaTotal: number;
+}
+
+export interface SocialMediaChannelSummary {
+  name: string;
+  key: string;
+  count: number;
+  pct: string;
+  pctVal: number;
+  color: string;
+}
+
+export interface SocialMediaTopicItem {
+  rank: number;
+  topik: string;
+  jumlah: number;
+  formattedJumlah: string;
+  persen: string;
+  persenVal: number;
+}
+
+export interface SocialMediaTopicsData {
+  informasi: SocialMediaTopicItem[];
+  pengaduan: SocialMediaTopicItem[];
+}
+
+export interface SocialMediaData {
+  monthly: MonthlySocialMediaRow[];
+  totals: {
+    facebook: number;
+    instagram: number;
+    x: number;
+    tiktok: number;
+    threads: number;
+    email: number;
+    youtube: number;
+    whatsapp: number;
+    jumlah: number;
+    avgResponTime: string;
+    avgResponTimeSeconds: number;
+    vikaStatusKepesertaan: number;
+    vikaTagihanIuran: number;
+    vikaTotal: number;
+    grandTotalDigital: number;
+  };
+  percentages: {
+    facebook: string;
+    instagram: string;
+    x: string;
+    tiktok: string;
+    threads: string;
+    email: string;
+    youtube: string;
+    whatsapp: string;
+    vikaStatusKepesertaan: string;
+    vikaTagihanIuran: string;
+  };
+  channelSummary: SocialMediaChannelSummary[];
+  topics?: SocialMediaTopicsData;
+}
+
+

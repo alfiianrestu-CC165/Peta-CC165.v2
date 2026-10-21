@@ -27,7 +27,8 @@ import {
   Target,
   Sparkles,
   TrendingUp,
-  Award
+  Award,
+  ExternalLink
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -281,6 +282,22 @@ export function VoiceDashboard({
               12 Wilayah
             </span>
           </button>
+
+          <a
+            href="https://bpjskscc.jasnita.co.id/wallboard-voice"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 sm:gap-2 px-3.5 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer text-slate-700 hover:text-red-600 hover:bg-white hover:shadow-xs border border-transparent hover:border-slate-200 group"
+            title="Buka Wallboard Live Report Voice CC 165"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+            </span>
+            <Activity size={14} className="text-red-500" />
+            <span className="capitalize">live report</span>
+            <ExternalLink size={12} className="text-slate-400 group-hover:text-red-500 transition-colors" />
+          </a>
         </div>
 
         <div className="hidden sm:flex items-center gap-2 pr-3 text-xs text-slate-500 font-medium">

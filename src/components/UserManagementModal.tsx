@@ -31,7 +31,7 @@ interface UserManagementModalProps {
 export function UserManagementModal({ isOpen, onClose, currentUser }: UserManagementModalProps) {
   const [users, setUsers] = useState<UserPetaCC[]>(USERS_PETA_CC);
   const [searchQuery, setSearchQuery] = useState('');
-  const [levelFilter, setLevelFilter] = useState<'all' | 'Administrator' | 'User' | 'KedeputianWilayah'>('all');
+  const [levelFilter, setLevelFilter] = useState<'all' | 'Administrator' | 'User'>('all');
   const [showPasswords, setShowPasswords] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [refreshMessage, setRefreshMessage] = useState<string | null>(null);
@@ -40,15 +40,7 @@ export function UserManagementModal({ isOpen, onClose, currentUser }: UserManage
   // Filtered users
   const filteredUsers = useMemo(() => {
     return users.filter((u) => {
-      let matchesLevel = true;
-      if (levelFilter === 'Administrator') {
-        matchesLevel = u.level === 'Administrator';
-      } else if (levelFilter === 'User') {
-        matchesLevel = u.level === 'User';
-      } else if (levelFilter === 'KedeputianWilayah') {
-        matchesLevel = u.username.startsWith('KW') || u.unitKerja.toLowerCase().includes('kedeputian wilayah');
-      }
-
+      const matchesLevel = levelFilter === 'all' || u.level === levelFilter;
       const q = searchQuery.toLowerCase().trim();
       const matchesQuery = 
         !q ||
@@ -240,16 +232,6 @@ export function UserManagementModal({ isOpen, onClose, currentUser }: UserManage
                   }`}
                 >
                   User ({userCount})
-                </button>
-                <button
-                  onClick={() => setLevelFilter('KedeputianWilayah')}
-                  className={`px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
-                    levelFilter === 'KedeputianWilayah'
-                      ? 'bg-emerald-600 text-white shadow-2xs font-semibold'
-                      : 'text-emerald-700 hover:text-emerald-900'
-                  }`}
-                >
-                  Wilayah A28:E39 (12)
                 </button>
               </div>
 
