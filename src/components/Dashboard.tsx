@@ -23,9 +23,7 @@ import {
   Clock,
   LogOut,
   ShieldCheck,
-  Building2,
-  ExternalLink,
-  Activity
+  Building2
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -410,25 +408,6 @@ export function Dashboard({ user, onLogout }: DashboardProps = {}) {
                  <RefreshCw size={16} className={cn(isCurrentTabRefreshing && "animate-spin text-blue-600")} />
                  <span>Refresh Data</span>
                </button>
-
-               {/* Direct Link Live Report on Voice Menu */}
-               {activeTab === 'voice' && (
-                 <a
-                   href="https://bpjskscc.jasnita.co.id/wallboard-voice"
-                   target="_blank"
-                   rel="noopener noreferrer"
-                   className="flex items-center gap-1.5 sm:gap-2 px-3.5 py-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 text-xs sm:text-sm font-bold border border-red-200 transition-all cursor-pointer shadow-2xs group"
-                   title="Buka Wallboard Live Report Voice CC 165"
-                 >
-                   <span className="relative flex h-2 w-2">
-                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                     <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-                   </span>
-                   <Activity size={15} className="text-red-600" />
-                   <span>live report</span>
-                   <ExternalLink size={13} className="text-red-400 group-hover:text-red-600 transition-colors" />
-                 </a>
-               )}
              </div>
           </div>
 
